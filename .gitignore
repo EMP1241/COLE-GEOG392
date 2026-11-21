@@ -1,0 +1,62 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.egg-info/
+build/
+dist/
+output/
+*.log
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.kdbx
+
+# Local databases and runtime state
+*.db
+*.sqlite
+*.sqlite3
+*.pid
+
+# Test, type-checker, linter, and coverage output
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+# IDE and operating-system metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local JavaScript development dependencies
+node_modules/
+
+# Do not publish handoffs or preparation workspaces.
+features/*/original/
+features/*/source/
+features/*/working/
+features/*/verification/
+src/cole/features/*/data/
+
+# Keep original downloads and generated research outputs local.
+data/prepared/
+data/source/*
+!data/source/sources.json
+features/*/prepared/
+features/*/data/
+features/*/research/
+features/*/*intake.json

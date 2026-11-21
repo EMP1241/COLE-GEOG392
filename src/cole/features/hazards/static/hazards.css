@@ -1,0 +1,321 @@
+/* Natural-hazard UI contributed by Bingqian; isolated integration styles follow. */
+/* ===========================================================================
+   HAZARD ADD-ON: FEMA National Risk Index filter, detail tiles, map shading.
+   Reuses the temperature group's look so the new section reads as native.
+   =========================================================================== */
+.hazard-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+.hazard-filter-grid .limit-field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+.hazard-filter-grid select,
+.hazard-map-controls select {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 10px;
+  border: 1px solid var(--input-border, var(--border));
+  border-radius: 7px;
+  background: var(--input-bg, #fff);
+  color: var(--ink);
+  font: inherit;
+}
+.hazard-filter-grid select:focus-visible,
+.hazard-map-controls select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (max-width: 800px) {
+  .hazard-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.badge.hazard-match {
+  background: #e4f3eb;
+  color: #155b43;
+}
+.hazard-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+.hazard-tile {
+  display: grid;
+  gap: 3px;
+  border-radius: 7px;
+  background: #f6f3f0;
+  padding: 8px 9px;
+}
+.hazard-tile.overall {
+  grid-column: 1/-1;
+  background: #fbefe6;
+}
+.hazard-tile span {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.hazard-tile strong {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hazard-tile .swatch {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+}
+.map-shading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-right: 6px;
+}
+.map-shading select {
+  font-size: 0.75rem;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+.swatch.hazard-neutral {
+  border: 1px solid #b9b4ab;
+}
+.hazard-tile {
+  align-content: start;
+}
+.hazard-tile .hazard-measure-label {
+  margin-top: 2px;
+}
+.hazard-tile .hazard-life-label {
+  margin-top: 4px;
+  padding-top: 5px;
+  border-top: 1px solid #e6dfd8;
+}
+.hazard-tile .hazard-life {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink);
+}
+.hazard-tile .hazard-life .swatch {
+  width: 9px;
+  height: 9px;
+}
+.hazard-caution {
+  background: #fff7ef;
+  border: 1px solid #e3c7ae;
+  border-radius: 7px;
+  padding: 8px 10px;
+  color: #6b3f1f;
+}
+.demo-notice {
+  margin: 0 0 18px;
+  background: #fff4d6;
+  border: 1px solid #e0bf63;
+  color: #5c4300;
+  font-weight: 550;
+}
+@media (max-width: 800px) {
+  .map-shading {
+    width: 100%;
+    margin: 0 0 4px;
+  }
+}
+.hazard-tile small {
+  font-size: 0.66rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* HAZARD ADD-ON: plain-language key and per-tile scale. */
+.hazard-legend-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fbfaf8;
+  padding: 12px 14px;
+  margin: 8px 0 12px;
+}
+.hazard-legend-card h4 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+}
+.hazard-legend-card ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.hazard-legend-card li {
+  margin-bottom: 4px;
+}
+.hazard-scale {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+}
+.hazard-scale > span {
+  display: grid;
+  gap: 2px;
+  text-align: center;
+}
+.hazard-scale i {
+  display: block;
+  height: 12px;
+}
+.hazard-scale > span:first-child i {
+  border-radius: 4px 0 0 4px;
+}
+.hazard-scale > span:last-child i {
+  border-radius: 0 4px 4px 0;
+}
+.hazard-scale b {
+  font-size: 0.72rem;
+}
+.hazard-scale small {
+  font-size: 0.66rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.hazard-scale-ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.hazard-mini {
+  position: relative;
+  display: flex;
+  gap: 1px;
+  height: 6px;
+  margin: 5px 0 3px;
+}
+.hazard-mini i {
+  flex: 1;
+}
+.hazard-mini i:first-child {
+  border-radius: 3px 0 0 3px;
+}
+.hazard-mini i:last-of-type {
+  border-radius: 0 3px 3px 0;
+}
+.hazard-mini b {
+  position: absolute;
+  top: -5px;
+  width: 0;
+  height: 0;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--ink);
+}
+.hazard-tile .hazard-plain {
+  color: var(--ink);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+.hazard-tile .hazard-exact {
+  font-size: 0.64rem;
+}
+@media (max-width: 800px) {
+  .hazard-scale b {
+    font-size: 0.62rem;
+  }
+  .hazard-scale-ends {
+    font-size: 0.62rem;
+  }
+}
+.hazard-tile.overall .hazard-mini {
+  max-width: 340px;
+}
+
+.hazard-map-controls {
+  padding: 12px 0;
+}
+.hazard-map-controls label {
+  display: inline-block;
+  margin-right: 8px;
+}
+.hazard-map-controls select {
+  max-width: 100%;
+}
+.hazard-feature {
+  margin: 18px 0;
+}
+.hazard-breakdown {
+  min-width: 0;
+}
+.hazard-tile {
+  min-width: 0;
+}
+.hazard-tiles {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+.hazard-credit {
+  margin-top: 12px;
+}
+html[data-theme='dark'] .hazard-tile,
+html[data-theme='dark'] .hazard-tile.overall,
+html[data-theme='dark'] .hazard-legend-card {
+  background: var(--surface);
+  color: var(--ink);
+}
+html[data-theme='dark'] .hazard-caution {
+  background: #392d1e;
+  color: #f1d0a7;
+  border-color: #786044;
+}
+.hazard-scale b,
+.hazard-scale small {
+  overflow-wrap: anywhere;
+}
+@media print {
+  .hazard-map-controls select {
+    display: none;
+  }
+}
+
+#hazard-county-panel {
+  padding: 20px;
+  scroll-margin-top: 120px;
+}
+.hazard-feature .hazard-tile {
+  gap: 5px;
+  padding: 12px;
+}
+.hazard-feature .hazard-tile span,
+.hazard-feature .hazard-tile small {
+  font-size: 0.8rem;
+}
+.hazard-feature .hazard-tile strong {
+  font-size: 0.95rem;
+}
+.hazard-feature .hazard-tile .hazard-plain {
+  font-size: 0.85rem;
+}
+.hazard-feature .hazard-legend-card ul {
+  font-size: 0.85rem;
+}
+.hazard-feature .hazard-scale b {
+  font-size: 0.8rem;
+}
+.hazard-feature .hazard-scale small {
+  font-size: 0.75rem;
+}
+@media (max-width: 600px) {
+  #hazard-county-panel {
+    padding: 14px;
+  }
+}

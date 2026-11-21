@@ -1,0 +1,23 @@
+<details id="greenspace-filter" class="criteria-option-group" aria-labelledby="greenspace-heading">
+  <summary>
+    <span id="greenspace-heading">Public parks and outdoor areas <span class="optional">Optional</span></span>
+    <span id="greenspace-summary" class="criteria-group-summary">None active</span>
+  </summary>
+  <div class="criteria-option-body greenspace-feature">
+    <button class="button secondary" type="button" data-dialog="greenspace-info-dialog" aria-controls="greenspace-info-dialog" aria-haspopup="dialog" aria-label="Info about the public outdoor areas filter">Help and credits</button>
+    <p id="greenspace-help" class="hint">Choose how much of a county is mapped as public parks, forests and other outdoor areas open to the public. Leave unused limits blank.</p>
+    
+    
+    <div class="greenspace-bounds" role="group" aria-labelledby="greenspace-heading">
+      <label for="greenspace-min">At least this much of the county (%)<input id="greenspace-min" type="text" inputmode="decimal" autocomplete="off" placeholder="No minimum" data-greenspace-input="min" data-field="greenspace_limits.min" aria-describedby="greenspace-help" disabled></label>
+      <label for="greenspace-max">No more than this much (%)<input id="greenspace-max" type="text" inputmode="decimal" autocomplete="off" placeholder="No maximum" data-greenspace-input="max" data-field="greenspace_limits.max" aria-describedby="greenspace-help" disabled></label>
+    </div>
+    
+    <p id="greenspace-coverage-help" class="hint">Some parks may be missing from the map. A value of 0% does not prove there are no parks.</p>
+<details class="filter-details"><summary>Details and methods</summary>
+<p class="hint"><strong>USGS PAD-US 4.1.</strong> Estimated percentage of the whole county, including water, with public ownership and access recorded as open to the public. Parks, forests, refuges and other public outdoor areas can qualify. Private and nonprofit land, military land, and areas recorded as restricted or closed are excluded.</p><p class="hint">Enter a minimum, a maximum, or both, from 0% to 100%. Leave a field blank for no limit; entering 0 sets a zero limit. Values exactly on a limit are included. A county must meet these limits and your other filters to appear in matching results.</p><p class="hint">This mapped inventory is incomplete. A value of 0% means these records contain no qualifying area; the county may still have parks. Filters use the stored percentage before display rounding. Looking up a place still shows its counties and marks those outside your limits.</p>
+<p id="greenspace-coverage" class="hint"></p>
+</details>
+<p id="greenspace-status" class="hint" data-feature-status="greenspace" role="status">Loading public outdoor area data…</p>
+  </div>
+</details>

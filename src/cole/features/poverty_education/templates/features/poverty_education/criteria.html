@@ -1,0 +1,44 @@
+<details id="poverty-education-filter" class="criteria-option-group" aria-labelledby="poverty-education-heading">
+  <summary>
+    <span id="poverty-education-heading">Poverty and college degrees <span class="optional">Optional</span></span>
+    <span id="poverty-education-summary" class="criteria-group-summary">None active</span>
+  </summary>
+  <div class="criteria-option-body poverty-education-feature">
+    <button
+      class="button secondary"
+      type="button"
+      data-dialog="poverty-education-info-dialog"
+      aria-controls="poverty-education-info-dialog"
+      aria-haspopup="dialog"
+      aria-label="Info about the poverty and education feature"
+    >Help and credits</button>
+    <p id="poverty-education-help" class="hint">Set limits for residents in poverty or adults with a bachelor’s degree. Leave unused limits blank.</p>
+    
+    
+    <div class="poverty-education-inputs">
+      <fieldset role="group" aria-labelledby="poverty-measure-heading">
+        <legend id="poverty-measure-heading">People below the poverty line</legend>
+        
+        <div class="poverty-education-bounds">
+          <label for="poverty-min">At least (%)<input id="poverty-min" type="text" inputmode="decimal" autocomplete="off" placeholder="No minimum" data-poverty-education="poverty.min" data-field="poverty_education_limits.poverty.min" aria-describedby="poverty-education-help" disabled></label>
+          <label for="poverty-max">At most (%)<input id="poverty-max" type="text" inputmode="decimal" autocomplete="off" placeholder="No maximum" data-poverty-education="poverty.max" data-field="poverty_education_limits.poverty.max" aria-describedby="poverty-education-help" disabled></label>
+        </div>
+      </fieldset>
+      <fieldset role="group" aria-labelledby="education-measure-heading">
+        <legend id="education-measure-heading">Adults 25+ with a bachelor's degree or higher</legend>
+        
+        <div class="poverty-education-bounds">
+          <label for="education-min">At least (%)<input id="education-min" type="text" inputmode="decimal" autocomplete="off" placeholder="No minimum" data-poverty-education="education.min" data-field="poverty_education_limits.education.min" aria-describedby="poverty-education-help" disabled></label>
+          <label for="education-max">At most (%)<input id="education-max" type="text" inputmode="decimal" autocomplete="off" placeholder="No maximum" data-poverty-education="education.max" data-field="poverty_education_limits.education.max" aria-describedby="poverty-education-help" disabled></label>
+        </div>
+      </fieldset>
+    </div>
+    
+    
+<details class="filter-details"><summary>Details and methods</summary>
+<p class="hint"><strong>U.S. Census American Community Survey (ACS), 2020–2024 five-year estimates.</strong> These percentages describe county populations, not your household costs or take-home pay.</p><p class="hint">Enter a minimum, a maximum, or both, from 0% to 100%. Leave a field blank for no limit; entering 0 sets a zero limit. Filters compare the published estimate with your limits, including values exactly on a limit. County details show the 90% margin of error in percentage points. The estimate can match even when part of its uncertainty range falls outside your limits.</p><p class="hint">Percentage of people below the poverty level, among those whose poverty status is determined.</p><p class="hint">Percentage of adults age 25 and over with a bachelor's degree or higher. This measures completed degrees, not school quality or student enrollment.</p><p class="hint">Counties missing data for a measure you selected are excluded from matching results. Looking up a place still shows its counties and marks missing values.</p>
+<p id="poverty-education-coverage" class="hint"></p>
+</details>
+<p id="poverty-education-status" class="hint" role="status" data-feature-status="poverty_education">Loading optional poverty and education data…</p>
+  </div>
+</details>

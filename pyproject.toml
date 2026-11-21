@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cole-app"
+dynamic = ["version"]
+description = "Offline county household-cost exploration"
+license = "LicenseRef-COLE-Limited-Use"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+requires-python = ">=3.11"
+dependencies = ["Flask>=3.1,<4", "waitress>=3,<4"]
+
+[project.optional-dependencies]
+prepare = ["openpyxl>=3.1,<4", "pyshp>=2.3,<4", "pyproj>=3.6,<4"]
+test = ["pytest>=8,<10"]
+build = ["pyinstaller>=6,<7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "cole.__version__"}
+
+[tool.setuptools.package-data]
+cole = ["templates/*", "static/*", "static/vendor/*", "static/vendor/images/*", "features/hazards/data/*", "features/hazards/static/*", "features/hazards/templates/features/hazards/*", "features/industry_employment/data/*", "features/industry_employment/static/*", "features/industry_employment/templates/features/industry_employment/*", "features/poverty_education/data/*", "features/poverty_education/static/*", "features/poverty_education/templates/features/poverty_education/*", "features/age_demographics/data/*", "features/age_demographics/static/*", "features/age_demographics/templates/features/age_demographics/*", "features/greenspace/data/*", "features/greenspace/static/*", "features/greenspace/templates/features/greenspace/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests", "features/hazards/tests", "features/industry_employment/tests", "features/poverty_education/tests", "features/age_demographics/tests", "features/greenspace/tests"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

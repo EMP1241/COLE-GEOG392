@@ -1,0 +1,2195 @@
+<!--
+===========================================================================
+PLAIN-ENGLISH GUIDE TO THIS FILE
+===========================================================================
+
+WHAT IT IS
+The skeleton of the page: every screen, form field, dialog and panel the user
+can see. It holds the STRUCTURE and the WORDS. styles.css decides how it looks;
+app.js decides how it behaves.
+
+IT IS A TEMPLATE, NOT PLAIN HTML
+The Jinja value and loop markers are template syntax, not ordinary HTML. They
+are part of the template language Flask uses. app.py fills them in before the
+page is sent:
+  url_for('static', filename='app.js') becomes the real file address
+  the application-identity loop writes the five
+  identity <meta> tags that app.js reads and sends back on every request
+
+THE FOUR SCREENS, IN ORDER
+  splash-screen    what COLE is, and the promise that income is not saved
+  how-screen       how it works, and where the data comes from
+  criteria-screen  the form
+  results-screen   map, result list, county details, comparisons
+Only one is visible at a time. app.js swaps them using the `hidden` and
+`inert` attributes.
+The welcome now opens Criteria directly; How COLE works is an optional route.
+
+WHY THERE IS SO MUCH aria-* MARKUP
+Those attributes are for screen readers - software that reads the page aloud
+for blind and low-vision users. They are not decoration:
+  aria-labelledby  names a region, so entering it announces what it is
+  aria-describedby links an input to its help or error text
+  role="status" + aria-live  announces changes without moving focus; this is
+                 how "42 counties found" gets spoken
+  aria-hidden="true"  hides purely decorative things from the reader
+  class="sr-only"  visible only to screen readers
+A tool for comparing living-cost estimates should be usable by everyone, and
+this markup is part of making that true rather than aspirational.
+
+WHY THE WORDING IS SO CAREFUL
+Much of the visible text exists to prevent a specific misunderstanding - that
+these are renter estimates and exclude homeownership costs, that take-home pay
+means after tax, that temperature figures are monthly averages rather than
+daily highs and lows. Treat these sentences as load-bearing: they are the
+difference between a number being informative and being misleading.
+===========================================================================
+-->
+<!doctype html>
+<html lang="en" data-theme="dark" data-palette="aggieland">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+  These five <meta> tags are the identity bundle from app.py: app version,
+  schema version, calculation version, data release, and release fingerprint.
+  app.js reads them and sends them back on every request. If the server ever
+  reports different values, the page knows it is stale and demands a reload.
+-->
+    {% for key, value in application_identity.items() %}
+    <meta name="cole-{{ key }}" content="{{ value }}" />
+    {% endfor %}
+    <meta
+      name="description"
+      content="Compare county-level renter household costs with total household take-home pay, local data, and explicit comparisons."
+    />
+    <title>COLE · Cost Of Living Explorer</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='cole-icon.svg') }}" />
+    <link rel="alternate icon" href="{{ url_for('static', filename='cole.ico') }}" />
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='cole-icon.png') }}" />
+
+    <!--
+  Everything the page loads is a local file. There is no CDN, no Google
+  Fonts, no analytics - which is what lets COLE work with no internet at all,
+  and is enforced by the Content-Security-Policy header in app.py.
+  `defer` means "download now, run after the HTML is parsed," so the scripts
+  never block the page from appearing.
+  Load order matters: money.js must exist before app.js uses ColeMoney.
+-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}" />
+    <script defer src="{{ url_for('static', filename='vendor/leaflet.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='money.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='features.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('hazards.static', filename='hazards.css') }}" />
+    <script defer src="{{ url_for('hazards.static', filename='hazards.js') }}"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('industry_employment.static', filename='industry.css') }}"
+    />
+    <script
+      defer
+      src="{{ url_for('industry_employment.static', filename='industry.js') }}"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('poverty_education.static', filename='poverty_education.css') }}"
+    />
+    <script
+      defer
+      src="{{ url_for('poverty_education.static', filename='poverty_education.js') }}"
+    ></script>
+    <link rel="stylesheet" href="{{ url_for('age_demographics.static', filename='age.css') }}" />
+    <script defer src="{{ url_for('age_demographics.static', filename='age.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('greenspace.static', filename='greenspace.css') }}" />
+    <script defer src="{{ url_for('greenspace.static', filename='greenspace.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+  </head>
+  <body data-hosted="{{ 'true' if hosted else 'false' }}">
+    <!--
+  A "skip link": hidden until focused, it lets a keyboard user jump past
+  the header straight to the content instead of tabbing through it every time.
+-->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="masthead">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 64 64" width="42" height="42"
+          aria-hidden="true" focusable="false">
+          <path d="M8 28 32 8l24 20" fill="none" stroke="currentColor" stroke-width="7"
+            stroke-linecap="round" stroke-linejoin="round" />
+          <rect class="brand-bar-first" x="17" y="35" width="32" height="7" rx="2" />
+          <rect class="brand-bar-second" x="17" y="48" width="23" height="7" rx="2" />
+        </svg>
+        <div>
+          <h1>COLE</h1>
+          <p>Cost Of Living Explorer</p>
+        </div>
+      </div>
+      <div class="header-note">
+        <a href="{{ url_for('license_notice') }}" target="_blank" rel="noopener"
+          aria-label="Read the COLE license (opens in a new tab)">License</a>
+        <button id="theme-picker-open" class="button quiet small theme-trigger" type="button"
+          data-dialog="theme-dialog" aria-controls="theme-dialog" aria-haspopup="dialog"
+          aria-label="Choose color theme" title="Choose color theme">
+          <span class="theme-trigger-swatches" aria-hidden="true"><i></i><i></i><i></i></span>
+          Theme
+        </button>
+        <button id="quit" class="button quiet small" type="button" hidden>Quit application</button>
+      </div>
+    </header>
+    <dialog id="theme-dialog" class="help-dialog theme-dialog" aria-labelledby="theme-dialog-title"
+      aria-describedby="theme-dialog-description">
+      <div class="dialog-heading">
+        <h2 id="theme-dialog-title">Choose a color theme</h2>
+        <button class="dialog-close" type="button" aria-label="Close color themes">×</button>
+      </div>
+      <p id="theme-dialog-description">Choose a preview to apply it. Your entries and results stay in place.</p>
+      <div class="theme-options" role="group" aria-label="Color themes">
+        {% for value, mode, name, description in [
+          ('aggieland', 'dark', 'Aggieland', 'Navy with mint accents'),
+          ('reveille', 'dark', 'Reveille', 'Charcoal with amber accents'),
+          ('midnight-yell', 'dark', 'Midnight Yell', 'Slate with blue accents'),
+          ('century-oak', 'dark', 'Century Oak', 'Espresso with cream accents'),
+          ('aggie-maroon', 'dark', 'Aggie Maroon', 'Maroon with rose accents'),
+          ('light', 'light', 'Academic Plaza', 'Light with deep green accents')
+        ] %}
+        <button class="theme-option" type="button" data-theme-option="{{ value }}"
+          data-theme-name="{{ name }}" aria-pressed="{{ 'true' if value == 'aggieland' else 'false' }}">
+          <span class="theme-preview" data-palette="{{ value }}" data-theme="{{ mode }}" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="theme-option-heading"><strong>{{ name }}</strong><span class="theme-selected" aria-hidden="true">✓ Selected</span></span>
+          <span class="theme-description">{{ description }}</span>
+        </button>
+        {% endfor %}
+      </div>
+    </dialog>
+    <main id="main-content">
+      <!--
+  SCREEN 1 - SPLASH. States what COLE does before asking for anything,
+  and makes the privacy promise up front rather than burying it.
+-->
+      <section id="splash-screen" class="flow-screen intro-screen" aria-labelledby="splash-heading">
+        <div class="flow-hero">
+          <p class="eyebrow">Cost Of Living Explorer</p>
+          <h2 id="splash-heading" tabindex="-1">
+            Find a place that fits your life and your budget.
+          </h2>
+          <p class="lead">
+            It’s easy to fall in love with a place before adding up what living there costs. COLE
+            helps you consider the budget earlier.
+          </p>
+          <p class="lead">
+            Compare estimated household living costs across U.S. counties. Start with your take-home
+            pay, adjust expenses you know, and narrow the search around what matters to you.
+          </p>
+          <p class="privacy-line">
+            {% if hosted %}
+            <strong>COLE 1.0.1 · Free web edition.</strong> Your entries are sent over HTTPS to COLE's server for calculation.
+            COLE does not save financial entries. The hosting provider may retain connection and operational logs.
+            The free service may take about a minute to wake after inactivity and is subject to hosting usage limits.
+            {% else %}
+            <strong>Your financial entries are not saved.</strong> Calculations run on your
+            computer.
+            {% endif %}
+          </p>
+          <div class="screen-actions welcome-actions">
+            <button id="splash-next" class="button primary large" type="button">
+              Start a search
+            </button>
+            <button id="splash-how" class="button secondary" type="button">How COLE works</button>
+            {% if hosted %}
+            <a id="windows-download" class="button secondary"
+              href="https://github.com/EMP1241/cole-downloads/releases/download/v1.0.1/COLE-Windows-x64-1.0.1.zip"
+              target="_blank" rel="noopener noreferrer" aria-describedby="windows-download-help">
+              Download for Windows
+            </a>
+            {% endif %}
+          </div>
+          {% if hosted %}
+          <p id="windows-download-help" class="privacy-line">
+            Windows 64-bit · ZIP, 65 MB · No account or Python installation needed.
+            Extract the entire folder, then open COLE.exe. The Windows app runs locally.
+          </p>
+          {% endif %}
+        </div>
+      </section>
+
+      <!--
+  SCREEN 2 - HOW IT WORKS. Shown before any data entry, deliberately: the
+  user should understand that this is a local Python application reading
+  prepared files, not a website, before they type their income.
+  October 20 update: this explanation is optional; the welcome also opens Criteria directly.
+-->
+      <section
+        id="how-screen"
+        class="flow-screen intro-screen"
+        aria-labelledby="how-heading"
+        hidden
+      >
+        <article class="flow-hero how-card">
+          <p class="eyebrow">Before you enter anything</p>
+          <h2 id="how-heading" tabindex="-1">How COLE works</h2>
+          <p class="lead">
+            COLE compares your household's take-home pay with estimated living costs in each county.
+            You can adjust the budget to see how much you would have left.
+          </p>
+          <ol class="how-steps how-overview">
+            <li>
+              <span>1</span>
+              <div>
+                <strong>Describe your household.</strong>
+                <p>
+                  Choose a supported household profile and enter your take-home pay after taxes.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span>2</span>
+              <div>
+                <strong>Set your priorities.</strong>
+                <p>
+                  Adjust known expenses, choose an optional reserve target, and apply the
+                  preferences that matter to you.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span>3</span>
+              <div>
+                <strong>Explore and compare.</strong>
+                <p>Inspect county estimates and compare up to three counties.</p>
+              </div>
+            </li>
+          </ol>
+          <p class="method-limit">
+            EPI’s starting budget estimates renter costs. Figures describe counties as a whole;
+            check actual local costs before making a decision.
+          </p>
+          <details class="method-reference">
+            <summary>Budget rules and sources</summary>
+            <ol class="how-steps">
+              <li>
+                <span>1</span>
+                <div>
+                  <strong>Start with your household and take-home pay.</strong>
+                  <p>
+                    Choose the number of adults and children, then enter your household's take-home
+                    pay per month or year. Enter one amount to find counties with estimated costs
+                    up to that amount. Enter lower and upper amounts to search a cost range; a
+                    matching county can still cost more than your lower take-home pay. You can
+                    also look up a place with or without entering income.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>2</span>
+                <div>
+                  <strong>See estimated living costs.</strong>
+                  <p>
+                    COLE starts with Economic Policy Institute (EPI) estimates for housing, food,
+                    transportation, health care, child care, and other necessities. We remove EPI's
+                    estimated taxes because your take-home pay is already after tax. EPI's housing
+                    estimate is for renters.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>3</span>
+                <div>
+                  <strong>Adjust the budget and leave room for your goals.</strong>
+                  <p>
+                    Replace categories with costs you know, including your full monthly housing
+                    costs if you own. Add expenses the estimate doesn't cover. You can also choose a
+                    percentage of take-home to keep after costs. A 20% target on $90,000 leaves
+                    $18,000 for your goals and up to $72,000 for costs. An income range uses the
+                    lower amount for this target.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>4</span>
+                <div>
+                  <strong>Narrow the search, then compare your options.</strong>
+                  <p>
+                    Filter by state, EPI cost categories, long-term temperatures, hazards, industry
+                    employment, poverty, educational attainment, age profiles and public outdoor space. Explore the county map and
+                    compare up to three counties. Each breakdown shows estimated costs, what remains
+                    at the income you entered, and whether you meet your reserve goal. You can
+                    change your criteria and search again.
+                  </p>
+                </div>
+              </li>
+            </ol>
+            <div class="tool-notes">
+              <p>
+                <strong>What “remaining” means.</strong> Take-home pay minus estimated costs and
+                your extra expenses. EPI does not include savings. Monthly budget figures are annual
+                amounts divided by 12, and a positive balance alone doesn't tell you whether a place
+                will feel comfortable. Your debts, savings goals, and unexpected expenses matter
+                too.
+              </p>
+              <p>
+                <strong>Before you decide to move.</strong> These estimates describe a county as a
+                whole. Prices for a particular home or neighborhood will vary. Your replacement
+                costs apply to every county in a search. Check actual housing, bills, and local
+                conditions before committing to a move.
+              </p>
+            </div>
+            <p class="hint">
+              <strong>Sources and privacy.</strong> Costs come from EPI's 2026 estimates in 2025
+              dollars; temperatures are NOAA's 1991 to 2020 monthly county averages. Census
+              geography connects places to counties. Optional features use FEMA's December 2025
+              hazard data, BLS 2025 annual-average employment, and Census ACS 2020–2024 poverty and
+              educational attainment and age estimates, plus USGS PAD-US 4.1 public outdoor space estimates.
+              {% if hosted %}The free web edition processes your entries on COLE's server over HTTPS. COLE does not save financial entries; the hosting provider may retain connection and operational logs.
+              {% else %}COLE runs on your computer and does not save your financial entries.{% endif %}
+            </p>
+          </details>
+          <div class="screen-actions split">
+            <button id="how-back" class="button secondary" type="button">Back</button
+            ><button id="how-continue" class="button primary large" type="button">
+              Start a search
+            </button>
+          </div>
+        </article>
+      </section>
+      <div id="startup-status" class="notice" role="status">Loading local data and map…</div>
+      <button id="reload" class="button secondary" type="button" hidden>Reload application</button>
+
+      <!--
+  SCREEN 3 - CRITERIA. The form. Reading its structure:
+    the mode radios     Find counties (discovery) vs Look up a place
+    step 1  household   adults and children -> picks which EPI row applies
+    location           state restriction; place lookup only shown in lookup mode
+    step 2/3 income     take-home pay, one card per earner
+    step 3/4 refine     simple and advanced budgets, then optional limit groups
+  Step numbers shift between modes, which is why app.js rewrites them.
+-->
+      <section
+        id="criteria-screen"
+        class="flow-screen"
+        aria-labelledby="criteria-screen-heading"
+        hidden
+      >
+        <div class="screen-header">
+          <div>
+            <p class="eyebrow">Build a search</p>
+            <h2 id="criteria-screen-heading" tabindex="-1">Your criteria</h2>
+          </div>
+          <div class="screen-actions">
+            <button id="criteria-back" class="button quiet" type="button">How it works</button
+            ><button id="view-current-results" class="button secondary" type="button" hidden>
+              View last submitted results
+            </button>
+          </div>
+        </div>
+        <div class="app-layout">
+          <aside class="criteria-card" aria-label="Search criteria">
+            <form id="scenario-form" novalidate>
+              <div class="section-heading">
+                <p class="hint">
+                  Start with your household and pay. Add the preferences that matter to you.
+                </p>
+                <button id="reset" class="button quiet small" type="button">Reset all</button>
+              </div>
+              <fieldset class="mode-choice">
+                <legend class="sr-only">Choose a search</legend>
+                <label
+                  ><input type="radio" name="query_kind" value="discovery" checked /><span
+                    >Find counties</span
+                  ></label
+                ><label
+                  ><input type="radio" name="query_kind" value="lookup" /><span
+                    >Look up a place</span
+                  ></label
+                >
+              </fieldset>
+              <div class="household-location">
+                <section class="form-section">
+                  <h3>
+                    <span class="step-number">1</span> Household
+                    <button
+                      class="help-button"
+                      type="button"
+                      data-dialog="household-help-dialog"
+                      aria-controls="household-help-dialog"
+                      aria-haspopup="dialog"
+                      aria-label="Explain household assumptions"
+                    >
+                      ?
+                    </button>
+                  </h3>
+                  <p class="hint criteria-explanation">Choose the people in this household.</p>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="adults">Adults</label
+                      ><select id="adults" name="adults" data-field="household.adults">
+                        <option value="">Choose…</option>
+                        <option value="1">1 adult</option>
+                        <option value="2">2 adults</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="children">Children</label
+                      ><select id="children" name="children" data-field="household.children">
+                        <option value="">Choose…</option>
+                        <option value="0">0 children</option>
+                        <option value="1">1 child</option>
+                        <option value="2">2 children</option>
+                        <option value="3">3 children</option>
+                        <option value="4">4 children</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p class="hint">Starts with renter costs. If you own a home, you can enter your costs below.</p>
+                  <details class="filter-details"><summary>Household and housing details</summary>                  <p class="hint household-scope">
+                    The Economic Policy Institute (EPI) provides county-level renter estimates
+                    for 1 or 2 adults and 0 to 4
+                    children. An adult son or daughter cannot be entered as a child; a household
+                    with 3 adults and 2 children has no Published estimate.
+                  </p>
+                  <div
+                    class="assumption-note criteria-explanation"
+                    role="note"
+                    aria-label="Housing basis"
+                  >
+                    <strong>Housing basis: renter estimate.</strong> EPI uses local fair-market rent
+                    and tenant-paid utilities. Homeownership costs such as a mortgage, property tax,
+                    homeowners insurance, maintenance, and HOA fees are not estimated.
+                  </div>
+</details>
+                  <button
+                    class="button quiet context-link"
+                    type="button"
+                    data-dialog="estimate-help-dialog"
+                    aria-controls="estimate-help-dialog"
+                    aria-haspopup="dialog"
+                  >
+                    How EPI builds this estimate <span aria-hidden="true">?</span>
+                  </button>
+                </section>
+
+                <!--
+  The income section. The help text here is the most carefully worded in
+  the app: COLE cannot detect that someone entered gross salary instead of
+  take-home pay, and that mistake would silently overstate the submitted
+  financial ceiling. So the warning is prominent and repeated in the "?"
+  dialog.
+-->
+                <section id="lookup-section" class="form-section" hidden>
+                  <h3>
+                    <span class="step-number">2</span> Place lookup
+                    <button
+                      class="help-button"
+                      type="button"
+                      data-dialog="lookup-help-dialog"
+                      aria-controls="lookup-help-dialog"
+                      aria-haspopup="dialog"
+                      aria-label="Explain location lookup"
+                    >
+                      ?
+                    </button>
+                  </h3>
+                  <div class="field">
+                    <label for="lookup-kind">Search by</label
+                    ><select id="lookup-kind">
+                      <option value="county">County</option>
+                      <option value="place">City or place</option>
+                      <option value="zcta">ZIP area (ZCTA)</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="lookup-text">Location name or code</label>
+                    <div class="input-button">
+                      <input
+                        id="lookup-text"
+                        type="search"
+                        autocomplete="off"
+                        placeholder="For example, Travis"
+                        aria-describedby="lookup-help"
+                      /><button id="lookup-search" class="button secondary" type="button">
+                        Search
+                      </button>
+                    </div>
+                  </div>
+                  <p id="lookup-help" class="hint">
+                    Choose a result below before submitting. Places and ZIP Code Tabulation Areas
+                    (ZCTAs) can cross county boundaries. Some postal ZIP codes have no matching
+                    ZCTA.
+                  </p>
+                  <div id="lookup-status" class="hint" role="status"></div>
+                  <ul
+                    id="lookup-options"
+                    class="lookup-options"
+                    aria-label="Choose a location"
+                  ></ul>
+                  <div id="lookup-selected" class="selection-note" hidden></div>
+                  <fieldset class="context-choice">
+                    <legend>What would you like to see?</legend>
+                    <label
+                      ><input type="radio" name="income_context" value="costs_only" checked /> Costs
+                      only</label
+                    ><label
+                      ><input type="radio" name="income_context" value="financial" /> Compare costs
+                      with my take-home pay</label
+                    >
+                  </fieldset>
+                </section>
+                <section class="location-restriction" aria-labelledby="location-restriction-title">
+                  <h3 id="location-restriction-title" class="label-with-help">
+                    Location<button
+                      class="help-button"
+                      type="button"
+                      data-dialog="state-help-dialog"
+                      aria-controls="state-help-dialog"
+                      aria-haspopup="dialog"
+                      aria-label="Explain state restriction"
+                    >
+                      ?
+                    </button>
+                  </h3>
+                  <div class="field">
+                    <label for="state-filter">Search within a state</label
+                    ><select
+                      id="state-filter"
+                      data-field="state_filter"
+                      aria-describedby="state-help"
+                    >
+                      <option value="">All supported states and DC</option>
+                    </select>
+                    <p class="hint" id="state-help">
+                      Show only counties in the selected state. Place lookups may also show counties across state lines.
+                    </p>
+                  </div>
+                </section>
+              </div>
+              <section
+                id="financial-section"
+                class="form-section financial-panel"
+                aria-describedby="take-home-help"
+              >
+                <h3>
+                  <span class="step-number" id="income-step">2</span> Total household take-home pay
+                  <button
+                    class="help-button"
+                    type="button"
+                    data-dialog="income-help-dialog"
+                    aria-controls="income-help-dialog"
+                    aria-haspopup="dialog"
+                    aria-label="Explain take-home pay and taxes"
+                  >
+                    ?
+                  </button>
+                </h3>
+                <p id="take-home-help" class="hint critical-instruction"><strong>Use pay after taxes.</strong> Choose a monthly or yearly total in dollars. Do not enter an hourly wage.</p><details class="filter-details"><summary>Pay amounts and income ranges</summary><p class="hint critical-instruction">
+                  <strong>Annual or monthly after-tax totals only.</strong> Enter U.S. dollars
+                  without commas: $75,000 is 75000. Do not enter gross salary or an hourly wage. Use
+                  the take-home total expected in the destination; a state with no income tax needs
+                  no extra adjustment. COLE does not estimate or subtract taxes from the pay you
+                  enter.
+                  For one fixed amount, enter it in the required take-home pay field and leave
+                  the optional lower amount blank. For a range, enter both amounts for every earner.
+                </p></details>
+                <p
+                  id="income-bound-setting"
+                  class="income-bound-setting"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  Before widening: show costs up to your total take-home pay. Enter the pay for each earner.
+                </p>
+
+                <!--
+  Collapsible optional filters (<details> elements). Collapsed by default
+  so the form is not overwhelming, and each carries a live summary of its
+  current setting in the header so the user can see what is active without
+  opening it.
+-->
+
+                <div id="earners"></div>
+                <button id="add-earner" class="button secondary full" type="button">
+                  + Add another earner
+                </button>
+                <div class="form-section reserve-control">
+                  <div class="field">
+                    <div class="label-with-help">
+                      <label for="reserve-percent"
+                        >Money left after expenses (%)
+                        <span class="optional">optional</span></label
+                      >
+                      <button
+                        class="help-button"
+                        type="button"
+                        data-dialog="reserve-help-dialog"
+                        aria-controls="reserve-help-dialog"
+                        aria-haspopup="dialog"
+                        aria-label="Explain the reserve goal"
+                      >
+                        ?
+                      </button>
+                    </div>
+                    <input
+                      id="reserve-percent"
+                      type="text"
+                      inputmode="decimal"
+                      autocomplete="off"
+                      placeholder="No goal"
+                      data-field="reserve_percent"
+                      aria-describedby="reserve-help"
+                    />
+                    <p id="reserve-help" class="hint">
+                      Choose how much of your pay to keep after costs. For a pay range, this uses the lower amount. This turns off widened cost searching, even at 0%.
+                    </p>
+                  </div>
+                  <button id="reserve-example" class="button secondary small" type="button">
+                    Use 20% example
+                  </button>
+                  <p class="hint reserve-note">
+                    Leave blank to turn this goal off.
+                  </p>
+                </div>
+              </section>
+              <section class="form-section refine-section">
+                <h3><span class="step-number" id="options-step">3</span> Refine your search</h3>
+
+                <p class="housing-replacement-note">
+                  <strong>Own a home?</strong> Open <strong>Use your own monthly costs</strong> and enter all your housing costs.
+                </p>
+
+                <details
+                  id="simple-budget"
+                  class="criteria-option-group"
+                  aria-describedby="simple-budget-help"
+                >
+                  <summary>
+                    <span>Extra monthly expenses <span class="optional">optional</span></span
+                    ><span id="simple-budget-summary" class="criteria-group-summary"
+                      >No extras</span
+                    >
+                  </summary>
+                  <div class="criteria-option-body">
+                    <div class="criteria-option-tools">
+                      <button
+                        class="help-button"
+                        type="button"
+                        data-dialog="extras-help-dialog"
+                        aria-controls="extras-help-dialog"
+                        aria-haspopup="dialog"
+                        aria-label="Explain simple budget"
+                      >
+                        ?
+                      </button>
+                    </div>
+                    <p id="simple-budget-help" class="hint">Add monthly expenses that the estimate does not cover, such as tuition or debt payments.</p>
+                    <div class="field">
+                      <label for="extras"
+                        >Extra expenses per month <span class="optional">optional</span></label
+                      >
+                      <div class="money-input">
+                        <span aria-hidden="true">$</span
+                        ><input
+                          id="extras"
+                          type="text"
+                          inputmode="decimal"
+                          value="0"
+                          data-field="extras_monthly"
+                          aria-describedby="simple-budget-help extras-help"
+                        />
+                      </div>
+                      <p id="extras-help" class="hint">Enter a monthly total. Blank or 0 adds nothing. Count each expense only once.</p>
+                    </div>
+                  <details class="filter-details"><summary>Details and examples</summary><p class="hint">
+                      Keep the county's EPI household estimate and add one monthly total for
+                      expenses it doesn't already cover. You can also add this total to an
+                      advanced household budget with your own category costs.
+                    </p><p class="hint">
+                        Enter U.S. dollars per month. Blank or 0 adds nothing. Include tuition,
+                        required fees, books, course software, or other recurring costs not already
+                        covered by your budget. For semester or annual bills, total the year's
+                        payments and divide by 12. Count each expense only once.
+                      </p></details></div>
+                </details>
+
+                <details
+                  id="custom-budget"
+                  class="criteria-option-group"
+                  aria-describedby="custom-budget-help"
+                >
+                  <summary>
+                    <span>Use your own monthly costs <span class="optional">optional</span></span
+                    ><span id="custom-budget-summary" class="criteria-group-summary"
+                      >Published estimate</span
+                    >
+                  </summary>
+                  <div class="criteria-option-body">
+                    <div class="criteria-option-tools">
+                      <button
+                        class="help-button"
+                        type="button"
+                        data-dialog="custom-help-dialog"
+                        aria-controls="custom-help-dialog"
+                        aria-haspopup="dialog"
+                        aria-label="Explain advanced household budget"
+                      >
+                        ?
+                      </button>
+                    </div>
+                    
+                    <p id="custom-budget-help" class="hint">Replace any monthly estimate with your own cost. Leave a field blank to keep the estimate; enter 0 only if you pay nothing.</p>
+                    
+                    <fieldset class="context-choice">
+                      <legend>Which costs should COLE use?</legend>
+                      <label
+                        ><input
+                          type="radio"
+                          name="cost_mode"
+                          value="epi"
+                          data-field="cost_mode"
+                          checked
+                        />
+                        Published estimate</label
+                      ><label
+                        ><input
+                          type="radio"
+                          name="cost_mode"
+                          value="custom"
+                          data-field="cost_mode"
+                        />
+                        Your monthly costs</label
+                      >
+                    </fieldset>
+                    <div id="custom-budget-fields" hidden>
+                      <p class="critical-instruction"><strong>Own your home?</strong> Include your mortgage, utilities, taxes, insurance and upkeep in Housing.</p>
+                      
+                      <div class="component-filter-grid">
+                        <div class="field">
+                          <div class="label-with-help">
+                            <label for="custom-housing">Housing / month</label
+                            ><button
+                              class="help-button"
+                              type="button"
+                              data-dialog="housing-help-dialog"
+                              aria-controls="housing-help-dialog"
+                              aria-haspopup="dialog"
+                              aria-label="Explain what to include in housing"
+                            >
+                              ?
+                            </button>
+                          </div>
+                          <div class="money-input">
+                            <span aria-hidden="true">$</span
+                            ><input
+                              id="custom-housing"
+                              type="text"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              placeholder="Keep estimate"
+                              data-custom="housing"
+                              data-field="custom_costs_monthly.housing"
+                              aria-describedby="custom-budget-help custom-housing-help"
+                            />
+                          </div>
+                          <p id="custom-housing-help" class="hint">Include all housing costs and utilities. Count taxes and insurance only once.</p>
+                        </div>
+                        <div class="field">
+                          <label for="custom-food">Food / month</label>
+                          <div class="money-input">
+                            <span aria-hidden="true">$</span
+                            ><input
+                              id="custom-food"
+                              type="text"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              placeholder="Keep estimate"
+                              data-custom="food"
+                              data-field="custom_costs_monthly.food"
+                              aria-describedby="custom-budget-help"
+                            />
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label for="custom-transportation">Transportation / month</label>
+                          <div class="money-input">
+                            <span aria-hidden="true">$</span
+                            ><input
+                              id="custom-transportation"
+                              type="text"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              placeholder="Keep estimate"
+                              data-custom="transportation"
+                              data-field="custom_costs_monthly.transportation"
+                              aria-describedby="custom-budget-help"
+                            />
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label for="custom-healthcare">Health care / month</label>
+                          <div class="money-input">
+                            <span aria-hidden="true">$</span
+                            ><input
+                              id="custom-healthcare"
+                              type="text"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              placeholder="Keep estimate"
+                              data-custom="healthcare"
+                              data-field="custom_costs_monthly.healthcare"
+                              aria-describedby="custom-budget-help"
+                            />
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label for="custom-other-necessities">Other necessities / month</label>
+                          <div class="money-input">
+                            <span aria-hidden="true">$</span
+                            ><input
+                              id="custom-other-necessities"
+                              type="text"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              placeholder="Keep estimate"
+                              data-custom="other_necessities"
+                              data-field="custom_costs_monthly.other_necessities"
+                              aria-describedby="custom-budget-help"
+                            />
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label for="custom-childcare">Child care / month</label>
+                          <div class="money-input">
+                            <span aria-hidden="true">$</span
+                            ><input
+                              id="custom-childcare"
+                              type="text"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              placeholder="Keep estimate"
+                              data-custom="childcare"
+                              data-field="custom_costs_monthly.childcare"
+                              aria-describedby="custom-budget-help"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <label class="custom-ack"
+                        ><input
+                          id="custom-scope-acknowledged"
+                          type="checkbox"
+                          data-field="custom_scope_acknowledged"
+                        />
+                        Use these costs in every county. I will check local prices and benefit rules.</label
+                      >
+                      
+                    </div>
+                  <details class="filter-details"><summary>Details and examples</summary><p class="hint">
+                      <strong>Economic Policy Institute (EPI), 2026 estimates in 2025 dollars.</strong>
+                      Replace individual categories, such as housing or food, with your own monthly
+                      costs. COLE adjusts the county's Published estimate by each replacement; categories
+                      you leave blank keep their EPI amounts.
+                    </p><p class="hint">
+                      Enter U.S. dollars per month. Leave a category blank to keep its Published estimate;
+                      enter 0 only if you pay nothing for that category. Replace at least one
+                      category, or choose Published estimate. Each replacement
+                      applies to every searched county; your take-home pay stays the same.
+                    </p><p class="hint">
+                      <strong>Planning a student budget?</strong> Remember tuition, required fees,
+                      books, course software, and other recurring costs. Enter costs not already
+                      covered by your budget under <strong>Extra expenses per month</strong> in
+                      <strong>Extra monthly expenses</strong>. For semester or annual bills, total the
+                      year's payments and divide by 12. Count each cost only once.
+                    </p><p class="critical-instruction">
+                        <strong>EPI's housing estimate is for renters.</strong> If you own a home,
+                        replace Housing with your full monthly ownership costs. COLE will use
+                        your estimate; EPI does not provide a homeowner budget.
+                      </p><p class="hint">
+                        Enter digits without commas. Each replacement applies to every county in
+                        this search. For housing, include your full monthly rent and tenant-paid
+                        utilities, or your full monthly owner costs. COLE does not check whether you
+                        qualify for a voucher, can use it in another county, or can find an
+                        available home. It does not check other benefits by county either.
+                      </p><p class="hint">
+                            Include utilities and all monthly housing costs. Count escrowed taxes
+                            and insurance only once.
+                          </p><p class="hint">
+                        Food and child care are separate categories. If SNAP reduces what you pay
+                        for food, enter the reduced food cost without adding the benefit to income.
+                        Child care can be $0 even when food is not.
+                      </p></details></div>
+                </details>
+                <details
+                  id="component-filter"
+                  class="component-filter criteria-option-group"
+                  aria-describedby="component-filter-help"
+                >
+                  <summary>
+                    <span id="component-group-label"
+                      >Limits on monthly estimates <span class="optional">optional</span></span
+                    ><span id="component-group-summary" class="criteria-group-summary"
+                      >None active</span
+                    >
+                  </summary>
+                  <div
+                    class="criteria-option-body"
+                    role="group"
+                    aria-labelledby="component-group-label"
+                  >
+                    <div class="criteria-option-tools">
+                      <button
+                        class="help-button"
+                        type="button"
+                        data-dialog="component-help-dialog"
+                        aria-controls="component-help-dialog"
+                        aria-haspopup="dialog"
+                        aria-label="Explain limits on monthly estimates"
+                      >
+                        ?
+                      </button>
+                    </div>
+                    
+                    <p id="component-filter-help" class="hint">Set a maximum monthly estimate for each expense you care about. Leave unused fields blank.</p>
+                    <p id="component-filter-meaning" class="hint">These limits check the original estimates, even when you use your own budget.</p><div class="component-filter-grid">
+                      <div class="field">
+                        <label for="component-limit-housing">Housing</label>
+                        <div class="money-input">
+                          <span aria-hidden="true">$</span
+                          ><input
+                            id="component-limit-housing"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No limit"
+                            data-component="housing"
+                            data-field="component_limits_monthly.housing"
+                            aria-describedby="component-filter-help"
+                          />
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="component-limit-food">Food</label>
+                        <div class="money-input">
+                          <span aria-hidden="true">$</span
+                          ><input
+                            id="component-limit-food"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No limit"
+                            data-component="food"
+                            data-field="component_limits_monthly.food"
+                            aria-describedby="component-filter-help"
+                          />
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="component-limit-transportation">Transportation</label>
+                        <div class="money-input">
+                          <span aria-hidden="true">$</span
+                          ><input
+                            id="component-limit-transportation"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No limit"
+                            data-component="transportation"
+                            data-field="component_limits_monthly.transportation"
+                            aria-describedby="component-filter-help"
+                          />
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="component-limit-healthcare">Health care</label>
+                        <div class="money-input">
+                          <span aria-hidden="true">$</span
+                          ><input
+                            id="component-limit-healthcare"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No limit"
+                            data-component="healthcare"
+                            data-field="component_limits_monthly.healthcare"
+                            aria-describedby="component-filter-help"
+                          />
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="component-limit-other-necessities">Other necessities</label>
+                        <div class="money-input">
+                          <span aria-hidden="true">$</span
+                          ><input
+                            id="component-limit-other-necessities"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No limit"
+                            data-component="other_necessities"
+                            data-field="component_limits_monthly.other_necessities"
+                            aria-describedby="component-filter-help"
+                          />
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="component-limit-childcare">Child care</label>
+                        <div class="money-input">
+                          <span aria-hidden="true">$</span
+                          ><input
+                            id="component-limit-childcare"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No limit"
+                            data-component="childcare"
+                            data-field="component_limits_monthly.childcare"
+                            aria-describedby="component-filter-help"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <p
+                      id="component-limit-setting"
+                      class="component-limit-setting"
+                      role="status"
+                      aria-live="polite"
+                      aria-atomic="true"
+                    >
+                      Current setting: no monthly EPI category limits.
+                    </p>
+                  <details class="filter-details"><summary>Details and examples</summary><p class="hint">
+                      <strong>EPI's 2026 estimates, in 2025 dollars.</strong> These limits compare
+                      EPI's original monthly category estimates for your selected household, even
+                      when you choose Your monthly costs. Your extra expenses are not
+                      included.
+                    </p><p class="hint">
+                      Enter U.S. dollars per month. Enter a maximum only for categories that matter
+                      to you. Leave a field blank for no limit; entering $0 is an active zero-dollar
+                      limit. A county must meet every entered limit to appear in matching results.
+                      Looking up a place still shows its counties and marks any limits they miss.
+                    </p><p class="hint">
+                      Food is primarily groceries prepared at home. Transportation
+                      combines auto and transit costs; it does not measure transit availability or
+                      walkability.
+                    </p></details></div>
+                </details>
+                <details
+                  id="temperature-filter"
+                  class="temperature-filter criteria-option-group"
+                  aria-describedby="temperature-filter-help"
+                >
+                  <summary>
+                    <span id="temperature-group-label"
+                      >Typical temperatures
+                      <span class="optional">optional</span></span
+                    ><span id="temperature-group-summary" class="criteria-group-summary"
+                      >None active</span
+                    >
+                  </summary>
+                  <div
+                    class="criteria-option-body"
+                    role="group"
+                    aria-labelledby="temperature-group-label"
+                  >
+                    <div class="criteria-option-tools">
+                      <button
+                        class="help-button"
+                        type="button"
+                        data-dialog="temperature-help-dialog"
+                        aria-controls="temperature-help-dialog"
+                        aria-haspopup="dialog"
+                        aria-label="Explain temperature preferences"
+                      >
+                        ?
+                      </button>
+                    </div>
+                    <p id="temperature-filter-help" class="hint">Choose the monthly average temperatures you prefer, in °F. These are not daily highs or lows.</p>
+
+                    <!--
+  SCREEN 4 - RESULTS. The map, the sortable county list, the detail panel,
+  and the comparison cards. The map region's aria-label explains the keyboard
+  alternative, since map shapes cannot be tabbed through - that is what the
+  "Inspect any covered county" search below it is for.
+-->
+                    <div class="temperature-filter-grid">
+                      <div class="field">
+                        <label for="temperature-coldest-min"
+                          >Coldest month: at least</label
+                        >
+                        <div class="temperature-input">
+                          <input
+                            id="temperature-coldest-min"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No minimum"
+                            data-temperature="coldest_month_min"
+                            data-field="temperature_limits_f.coldest_month_min"
+                            aria-describedby="temperature-filter-help"
+                          /><span aria-hidden="true">°F</span>
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="temperature-warmest-max"
+                          >Warmest month: at most</label
+                        >
+                        <div class="temperature-input">
+                          <input
+                            id="temperature-warmest-max"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No maximum"
+                            data-temperature="warmest_month_max"
+                            data-field="temperature_limits_f.warmest_month_max"
+                            aria-describedby="temperature-filter-help"
+                          /><span aria-hidden="true">°F</span>
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="temperature-average-min"
+                          >Year-round average: at least</label
+                        >
+                        <div class="temperature-input">
+                          <input
+                            id="temperature-average-min"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No minimum"
+                            data-temperature="twelve_month_average_min"
+                            data-field="temperature_limits_f.twelve_month_average_min"
+                            aria-describedby="temperature-filter-help"
+                          /><span aria-hidden="true">°F</span>
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="temperature-average-max"
+                          >Year-round average: at most</label
+                        >
+                        <div class="temperature-input">
+                          <input
+                            id="temperature-average-max"
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            placeholder="No maximum"
+                            data-temperature="twelve_month_average_max"
+                            data-field="temperature_limits_f.twelve_month_average_max"
+                            aria-describedby="temperature-filter-help"
+                          /><span aria-hidden="true">°F</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <p
+                      id="temperature-limit-setting"
+                      class="component-limit-setting"
+                      role="status"
+                      aria-live="polite"
+                      aria-atomic="true"
+                    >
+                      Current setting: no temperature limits.
+                    </p>
+                  <details class="filter-details"><summary>Details and examples</summary><p class="hint">
+                      <strong>1991–2020 monthly averages, not daily highs and lows.</strong> NOAA's
+                      estimates cover county areas. Enter degrees Fahrenheit (°F). Fill in the
+                      limits you care about and leave the rest blank. These describe past
+                      conditions, not a forecast or a guarantee for a specific address.
+                    </p><p class="hint criteria-explanation">
+                      Coldest and warmest mean the lowest and highest of the twelve monthly means,
+                      not average daily low or high temperatures. The 12-month value is COLE's
+                      one-decimal arithmetic mean of those twelve source values. Every entered
+                      temperature and cost limit must be met for a county to appear in matching
+                      results. Looking up a place still shows its counties and marks missed limits
+                      or missing temperature data.
+                    </p></details></div>
+                </details>
+                {% include "features/hazards/criteria.html" %}
+                {% include "features/greenspace/criteria.html" %}
+                {% include "features/industry_employment/criteria.html" %}
+                <details
+                  id="buffer-section"
+                  class="buffer-section criteria-option-group"
+                  aria-labelledby="buffer-heading"
+                  aria-describedby="buffer-help"
+                >
+                  <summary>
+                    <span id="buffer-heading"
+                      >Widen the cost search
+                      <span class="optional">Both start at $0</span></span
+                    ><span id="buffer-group-summary" class="criteria-group-summary"
+                      >None active</span
+                    >
+                  </summary>
+                  <div class="criteria-option-body" role="group" aria-labelledby="buffer-heading">
+                    <div class="criteria-option-tools">
+                      <button
+                        class="help-button"
+                        type="button"
+                        data-dialog="buffer-help-dialog"
+                        aria-controls="buffer-help-dialog"
+                        aria-haspopup="dialog"
+                        aria-label="Explain widened cost searching"
+                      >
+                        ?
+                      </button>
+                    </div>
+                    <p id="buffer-help" class="hint">Also show counties with costs outside your current range. This does not add income.</p>
+                    <p class="hint critical-instruction">Higher-cost results may cost more than you earn.</p><div id="buffers" class="buffer-grid"></div>
+                    <p
+                      id="buffer-setting"
+                      class="buffer-setting"
+                      role="status"
+                      aria-live="polite"
+                      aria-atomic="true"
+                    >
+                      No extra counties included.
+                    </p>
+                    
+                  <details class="filter-details"><summary>Details and examples</summary><p class="hint">
+                      <strong>Buffers change which counties appear.</strong> Use amounts you choose
+                      in the period shown. They never increase your take-home pay.
+                      A lower-cost buffer requires a lower take-home amount for every earner. If all
+                      lower amounts are blank, clear any existing lower-cost buffer to $0. The
+                      higher-cost buffer can still include costs above your upper amount. Buffers
+                      are inactive while a reserve goal is set.
+                    </p><p class="hint buffer-example criteria-explanation">
+                      <strong>Examples:</strong> Leave the lower amount blank and enter $50,000 as
+                      the upper amount to search all qualifying estimates up to $50,000; a $3,000
+                      yearly higher-cost buffer extends that ceiling to $53,000. For a $40,000 to
+                      $50,000 range, a $2,000 yearly lower-cost buffer and $3,000 yearly higher-cost
+                      buffer search estimated costs from $38,000 to $53,000.
+                    </p></details></div>
+                </details>
+                {% include "features/poverty_education/criteria.html" %}
+                {% include "features/age_demographics/criteria.html" %}
+              </section>
+              <div id="form-errors" class="notice error" role="alert" tabindex="-1" hidden></div>
+              <div class="submit-area">
+                <div id="live-preview" class="live-preview">
+                  <div class="label-with-help">
+                    <strong>Live match preview</strong
+                    ><button
+                      class="help-button"
+                      type="button"
+                      data-dialog="preview-help-dialog"
+                      aria-controls="preview-help-dialog"
+                      aria-haspopup="dialog"
+                      aria-label="Explain the live match preview"
+                    >
+                      ?
+                    </button>
+                  </div>
+                  <p id="live-preview-status" role="status" aria-live="polite" aria-atomic="true">
+                    Choose a household and enter the required upper take-home amount to see a match
+                    count.
+                  </p>
+                  <small
+                    >Preview includes your current filters. Select <strong>Find counties</strong>
+                    to apply your entries and open the results.</small
+                  >
+                </div>
+                <p id="draft-note" class="draft-note" hidden>
+                  You have unapplied changes. Displayed results still use your previous submission.
+                </p>
+                <button id="submit" class="button primary full" type="submit" disabled>
+                  Find counties
+                </button>
+              </div>
+            </form>
+          </aside>
+        </div>
+      </section>
+      <section
+        id="results-screen"
+        class="flow-screen"
+        aria-labelledby="results-screen-heading"
+        hidden
+      >
+        <!--
+  The footer's "Understand the estimate" section. This is where COLE
+  states its limits plainly: what the numbers include, what they exclude, and
+  what a place or ZIP lookup does and does not mean.
+-->
+        <div class="screen-header results-navigation">
+          <div>
+            <p class="eyebrow">Submitted search</p>
+            <h2 id="results-screen-heading" tabindex="-1">
+              Your county results
+              <span id="result-count-summary" class="result-count-summary" hidden></span>
+            </h2>
+          </div>
+          <div class="screen-actions">
+            <a class="button secondary small" href="#comparison-heading">Compare counties</a>
+            <button id="results-back" class="button primary large" type="button">
+              Back to criteria
+            </button>
+          </div>
+        </div>
+        <p id="zero-results-banner" class="zero-results-banner" hidden>
+          <strong>No counties matched all your search settings.</strong> EPI models a modest renter budget;
+          your entered take-home pay or other filters may exclude all counties.
+          <a href="#results-empty">See why and how to inspect a county</a>.
+        </p>
+        <p id="results-draft-note" class="draft-note" hidden>
+          Changes not applied. These results use your last submitted criteria.
+          Return to criteria and submit to apply your edits.
+        </p>
+        <section id="workspace" class="workspace" tabindex="-1" aria-label="County exploration">
+          <!--
+  The "?" help dialogs. Each is a real <dialog> element, opened by app.js
+  and returning focus to the button that opened it on close.
+-->
+          <section id="welcome" class="welcome-card">
+            <p class="eyebrow">Start with your household</p>
+            <h2>The numbers should tell the whole story.</h2>
+            <p>
+              Choose your household and enter total take-home pay to find matching counties, or look
+              up a place to explore its estimated renter costs.
+            </p>
+            <div class="welcome-facts">
+              <span><strong>County-level</strong> estimates</span
+              ><span><strong>Monthly average + annual</strong> costs</span
+              ><span><strong>Up to 3</strong> comparisons</span>
+            </div>
+          </section>
+          <section
+            id="accepted-summary"
+            class="summary-card"
+            aria-label="Submitted criteria"
+            hidden
+          ></section>
+          <div id="county-browser" class="county-workspace">
+            <section class="results-card" aria-labelledby="results-heading">
+              <div class="panel-heading">
+                <div>
+                  <h2 id="results-heading">Counties</h2>
+                  <p id="results-status" role="status">Submit your criteria to see results.</p>
+                  <p class="hint">
+                    List totals are annual household costs plus extra expenses. A match means the
+                    county meets your submitted criteria; it does not guarantee affordability or
+                    that a home is available. Location lookup can include counties that fail your
+                    criteria.
+                  </p>
+                </div>
+                <div class="result-controls">
+                  <div class="result-sort-fields">
+                    <div class="result-sort-field">
+                      <label for="result-sort">Sort by</label>
+                      <select id="result-sort" aria-describedby="sort-help" disabled>
+                        <optgroup label="Total household cost">
+                          <option value="total" selected>Total estimated cost</option>
+                        </optgroup>
+                        <optgroup label="EPI category estimates">
+                          <option value="housing">Housing</option>
+                          <option value="food">Food</option>
+                          <option value="transportation">Transportation</option>
+                          <option value="healthcare">Health care</option>
+                          <option value="other_necessities">Other necessities</option>
+                          <option value="childcare">Child care</option>
+                        </optgroup>
+                        <optgroup label="Long-term temperature">
+                          <option value="coldest">Coldest-month average</option>
+                          <option value="warmest">Warmest-month average</option>
+                          <option value="average">12-month average</option>
+                        </optgroup>
+                        <optgroup label="Location">
+                          <option value="name">State, then county name</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                    <div class="result-sort-field">
+                      <label for="result-order">Order</label>
+                      <select id="result-order" aria-describedby="sort-help" disabled>
+                        <option value="asc" selected>Lowest first</option>
+                        <option value="desc">Highest first</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p id="sort-help" class="hint">
+                    Uses total annual cost, including extras and any personal category replacements.
+                    Sorting changes list order only. Missing values stay last.
+                  </p>
+                </div>
+              </div>
+              <div id="results-list" class="results-list"></div>
+              <div id="results-empty" class="empty-result" hidden>
+                <strong>Why might there be no matches?</strong>
+                <p id="results-empty-basis"></p>
+                <p>
+                  <a href="#inspect-search-text">Inspect a county with EPI cost data</a>
+                  to see its estimate and cost breakdown, or return to criteria to revise your search.
+                  <a
+                    href="https://www.epi.org/publication/family-budget-calculator-documentation/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >How EPI builds the budget</a
+                  >.
+                </p>
+              </div>
+              <div id="results-pages" class="pagination" hidden>
+                <button id="previous-page" class="button secondary small" type="button">
+                  Previous</button
+                ><span id="page-label"></span
+                ><button id="next-page" class="button secondary small" type="button">Next</button>
+              </div>
+            </section>
+            <div class="map-card">
+              <div class="panel-heading">
+                <div>
+                  <div class="label-with-help">
+                    <h2>County map</h2>
+                    <button
+                      class="help-button"
+                      type="button"
+                      data-dialog="map-help-dialog"
+                      aria-controls="map-help-dialog"
+                      aria-haspopup="dialog"
+                      aria-label="Explain map colors and county selection"
+                    >
+                      ?
+                    </button>
+                  </div>
+                  <p id="map-description">Local county boundaries. No internet basemap needed.</p>
+                </div>
+                <div class="map-actions">
+                  <button id="fit-results" class="button quiet small" type="button" disabled>
+                    Fit results</button
+                  ><button id="map-home" class="button quiet small" type="button">
+                    Contiguous US
+                  </button>
+                </div>
+              </div>
+              <div
+                id="map"
+                role="region"
+                aria-label="Interactive county map. Use the results list or county inspection search to select a county with a keyboard."
+              ></div>
+              {% include "features/hazards/map.html" %}
+              <div class="map-legend" id="results-map-legend" aria-label="Map legend">
+                <span
+                  ><i class="swatch within" aria-hidden="true"></i>Within financial limits; other
+                  filters met</span
+                ><span
+                  ><i class="swatch buffer" aria-hidden="true"></i>Widened search; other filters
+                  met</span
+                ><span
+                  ><i class="swatch estimate" aria-hidden="true"></i>Costs only; no income
+                  check</span
+                ><span
+                  ><i class="swatch outside" aria-hidden="true"></i>Returned lookup county outside
+                  criteria</span
+                ><span
+                  ><i class="swatch not-returned" aria-hidden="true"></i>Not returned by this
+                  search</span
+                ><span><i class="swatch selected" aria-hidden="true"></i>Inspected outline</span>
+              </div>
+              <p class="hint map-legend-help">
+                Select any county to inspect it. Red marks returned lookup counties that fail a
+                selected criterion or lack data for an active filter. Gray counties are not in the
+                submitted results. Blue means costs only, with no income check; other selected
+                filters still apply.
+              </p>
+              <section class="map-inspect" role="search" aria-labelledby="inspect-search-label">
+                <div class="field">
+                  <label id="inspect-search-label" for="inspect-search-text"
+                    >Inspect a county with EPI cost data</label
+                  >
+                  <div class="input-button">
+                    <input
+                      id="inspect-search-text"
+                      type="search"
+                      autocomplete="off"
+                      placeholder="For example, Grimes TX"
+                      aria-describedby="inspect-search-help"
+                      disabled
+                    /><button id="inspect-search" class="button secondary" type="button" disabled>
+                      Search
+                    </button>
+                  </div>
+                </div>
+                <p id="inspect-search-help" class="hint">
+                  Submit criteria first, then search by county name or five-digit county code
+                  (FIPS). It may be outside the current results; its details use your submitted
+                  criteria.
+                </p>
+                <p id="inspect-search-status" class="hint" role="status"></p>
+                <ul
+                  id="inspect-search-options"
+                  class="lookup-options"
+                  aria-label="Choose a county to inspect"
+                ></ul>
+              </section>
+              <p id="map-status" class="hint map-status" role="status"></p>
+            </div>
+          </div>
+          <div class="county-summary-slot">
+            <section id="county-details-empty" class="details-card empty-result">
+              <h2>County details</h2>
+              <p>
+                Select a county from the list or map to see its costs and the money left at your
+                income.
+              </p>
+            </section>
+            <section
+              id="county-details"
+              class="details-card"
+              aria-labelledby="details-heading"
+              hidden
+            >
+              <div class="panel-heading">
+                <div>
+                  <div class="label-with-help">
+                    <p class="eyebrow">County details</p>
+                    <button
+                      class="help-button"
+                      type="button"
+                      data-dialog="balances-help-dialog"
+                      aria-controls="balances-help-dialog"
+                      aria-haspopup="dialog"
+                      aria-label="Explain remaining money, shortfalls, and goals"
+                    >
+                      ?
+                    </button>
+                  </div>
+                  <h2 id="details-heading" tabindex="-1"></h2>
+                </div>
+                <button id="add-comparison" class="button secondary" type="button">
+                  Add to comparison
+                </button>
+              </div>
+              <div id="details-body"></div>
+            </section>
+          </div>
+          <section
+            id="county-analysis"
+            class="county-analysis"
+            aria-label="Selected county supporting breakdowns"
+            hidden
+          >
+            <details id="cost-support" class="support-disclosure">
+              <summary>Costs by category</summary>
+              <section
+                class="details-card county-analysis-card"
+                aria-label="Selected county published costs"
+              >
+                <div class="analysis-context">
+                  <p id="cost-county-label" class="eyebrow"></p>
+                  <button
+                    class="help-button"
+                    type="button"
+                    data-dialog="component-help-dialog"
+                    aria-controls="component-help-dialog"
+                    aria-haspopup="dialog"
+                    aria-label="Explain the EPI cost breakdown"
+                  >
+                    ?
+                  </button>
+                </div>
+                <div id="county-cost-breakdown"></div>
+              </section>
+            </details>
+            <details id="climate-support" class="support-disclosure">
+              <summary>Long-term temperatures</summary>
+              <section
+                class="details-card county-analysis-card"
+                aria-label="Selected county temperatures"
+              >
+                <div class="analysis-context">
+                  <p id="climate-county-label" class="eyebrow"></p>
+                  <button
+                    class="help-button"
+                    type="button"
+                    data-dialog="temperature-help-dialog"
+                    aria-controls="temperature-help-dialog"
+                    aria-haspopup="dialog"
+                    aria-label="Explain the temperature profile"
+                  >
+                    ?
+                  </button>
+                </div>
+                <div id="county-climate-breakdown"></div>
+              </section>
+            </details>
+            <details id="hazard-support" class="support-disclosure support-wide">
+              <summary>Natural-hazard exposure</summary>
+              {% include "features/hazards/details.html" %}
+            </details>
+            <details id="industry-support" class="support-disclosure">
+              <summary>Industry employment</summary>
+              {% include "features/industry_employment/details.html" %}
+            </details>
+            <details id="poverty-education-support" class="support-disclosure">
+              <summary>Poverty and college degrees</summary>
+              {% include "features/poverty_education/details.html" %}
+            </details>
+            <details id="age-support" class="support-disclosure">
+              <summary>County age profile</summary>
+              {% include "features/age_demographics/details.html" %}
+            </details>
+            <details id="greenspace-support" class="support-disclosure">
+              <summary>Public parks and outdoor areas</summary>
+              {% include "features/greenspace/details.html" %}
+            </details>
+          </section>
+          <section class="comparison-card" aria-labelledby="comparison-heading">
+            <div class="panel-heading">
+              <div>
+                <div class="label-with-help">
+                  <h2 id="comparison-heading">
+                    Compare counties <span id="comparison-count" class="count">0 / 3</span>
+                  </h2>
+                  <button
+                    class="help-button"
+                    type="button"
+                    data-dialog="comparison-help-dialog"
+                    aria-controls="comparison-help-dialog"
+                    aria-haspopup="dialog"
+                    aria-label="Explain county comparisons"
+                  >
+                    ?
+                  </button>
+                </div>
+                <p>
+                  Inspect a county, then add it here. Each submitted search recalculates these same
+                  counties using your new criteria.
+                </p>
+                <p class="hint">
+                  All cards use the same submitted household, pay, extra expenses, replacements,
+                  and filters. A retained county may no longer meet your criteria; check its badges
+                  and balances. A match within an income range can still leave a shortfall at the
+                  lower income.
+                </p>
+              </div>
+            </div>
+            <p id="comparison-status" class="hint" role="status">No counties added yet.</p>
+            <div id="comparison-grid" class="comparison-grid"></div>
+          </section>
+        </section>
+        <footer class="source-footer">
+          <h2>Understand the estimate</h2>
+          <details>
+            <summary>How the budget and filters are calculated</summary>
+            <p>
+              COLE compares your household's take-home pay with EPI's renter estimates for each
+              county. It removes EPI's estimated taxes because your take-home pay is already after
+              tax, then adds your extra expenses. If you choose Your monthly costs, your
+              monthly costs replace the EPI categories you fill in. Your income stays the same. Actual
+              expenses can differ from these estimates.
+            </p>
+            <p>
+              Cost and temperature filters narrow matching results without changing the source
+              estimates. Cost limits use the original EPI monthly amounts shown in county details.
+              Your extra expenses are added separately, without splitting them among categories.
+              Seasonal temperature limits use the lowest and highest of NOAA's twelve monthly
+              averages. The 12-month limits use COLE's average of those values, rounded to one
+              decimal place. Without a reserve goal, a county can match your income range and still
+              cost more than your lower take-home amount. Buffers widen the range of costs in your
+              search. They never increase the money you have available.
+            </p>
+            <p>
+              Looking up a city, place, or ZIP area finds the counties it overlaps. The cost and
+              climate estimates describe those counties, not the city or postal ZIP itself.
+            </p>
+          </details>
+          <p class="project-credit">
+            COLE project attribution: Brandon Santor ·
+            <a href="mailto:brandon.santor@tamu.edu">brandon.santor@tamu.edu</a>
+          </p>
+          <div id="source-notes"></div>
+          <details>
+            <summary>Data release details</summary>
+            <pre id="manifest-details">Loading…</pre>
+          </details>
+        </footer>
+      </section>
+      {% include "features/hazards/info.html" %} {% include "features/industry_employment/info.html"
+      %} {% include "features/poverty_education/info.html" %}
+      {% include "features/age_demographics/info.html" %}
+      {% include "features/greenspace/info.html" %}
+      <dialog id="household-help-dialog" class="help-dialog" aria-labelledby="household-help-title">
+        <div class="dialog-heading">
+          <h2 id="household-help-title">Household and housing assumptions</h2>
+          <button class="dialog-close" type="button" aria-label="Close household help">×</button>
+        </div>
+        <p>
+          EPI has estimates for one or two working adults and zero to four children. Two-adult EPI
+          profiles assume married partners. For one, two, three, or four children, it assumes ages
+          4; 4 and 8; 4, 8, and 12; or 4, 8, 12, and 16. These ages affect food and child-care
+          estimates; child ages also affect health-insurance premiums. COLE cannot recalculate the
+          Published estimate for different ages.
+        </p>
+        <div class="assumption-note" role="note" aria-label="Housing basis">
+          <strong>Housing basis: renter estimate.</strong> EPI uses local fair-market rent and
+          tenant-paid utilities. Homeownership costs such as a mortgage, property tax, homeowners
+          insurance, maintenance, and HOA fees are not estimated.
+        </div>
+      </dialog>
+      <dialog id="lookup-help-dialog" class="help-dialog" aria-labelledby="lookup-help-title">
+        <div class="dialog-heading">
+          <h2 id="lookup-help-title">Location lookup</h2>
+          <button class="dialog-close" type="button" aria-label="Close location help">×</button>
+        </div>
+        <p>
+          Choose a result below before submitting. Places and ZIP areas can cross county boundaries.
+          ZIP areas are Census ZIP Code Tabulation Areas (ZCTAs); not every postal ZIP has a match.
+          COLE reports their associated county estimates; it does not create a city-level or
+          postal-ZIP estimate.
+        </p>
+      </dialog>
+      <dialog id="income-help-dialog" class="help-dialog" aria-labelledby="income-help-title">
+        <div class="dialog-heading">
+          <h2 id="income-help-title">Total household take-home pay</h2>
+          <button class="dialog-close" type="button" aria-label="Close take-home pay help">
+            ×
+          </button>
+        </div>
+        <p>
+          <strong>Enter annual or monthly after-tax totals.</strong> COLE does not estimate
+          take-home pay from gross salary or dollars per hour. If you are paid hourly or your pay
+          varies, use your pay records to find an annual total or a typical monthly total after tax.
+          You can also use a separate payroll calculator for the place you're considering. Enter an
+          upper total, or lower and upper totals to search a cost range. Supply a lower amount for
+          every earner, or leave every lower field blank. A typed 0 is a real lower income of $0.
+        </p>
+        <p>
+          If your take-home pay is steady, multiply the amount deposited each payday by the number
+          of payments in a year: weekly × 52, every two weeks × 26, twice monthly × 24, or monthly ×
+          12. Adjust for unpaid time and known variation. COLE adds every earner into one household
+          total.
+        </p>
+        <p>
+          Use the take-home pay expected in the state being compared. If no state income tax applies
+          to your household there, no extra COLE adjustment is needed. Each search uses the same
+          take-home totals for every county. Run a separate search if a destination's taxes would
+          substantially change your pay. COLE does not subtract taxes again. Health premiums,
+          retirement contributions, and other payroll deductions may overlap with EPI cost
+          categories. Do not add an expense again if it is already deducted from the take-home
+          amount you enter. For replacement costs, enter what you still pay out of pocket.
+        </p>
+        <p>
+          Without a reserve goal, a range searches total estimated costs between the lower and upper
+          amounts. Cheaper counties need a lower-cost buffer to appear. A match can still cost more
+          than your lower take-home pay.
+        </p>
+        <p>
+          <strong>Your income is not saved.</strong>
+          {% if hosted %}COLE sends it over HTTPS to its server to calculate this scenario. COLE does not save it to a user profile, browser storage or database. The hosting provider may retain connection and operational logs.
+          {% else %}COLE uses it for this local session. It does not save these values in your browser or in a local data file.{% endif %}
+        </p>
+      </dialog>
+      <dialog id="state-help-dialog" class="help-dialog" aria-labelledby="state-help-title">
+        <div class="dialog-heading">
+          <h2 id="state-help-title">Location: state restriction</h2>
+          <button class="dialog-close" type="button" aria-label="Close state restriction help">
+            ×
+          </button>
+        </div>
+        <p>
+          When searching for matches, show only counties in the selected state. Leave this set to
+          <strong>All supported states and DC</strong> to search the full supported area. Looking
+          up a place can still show counties across state lines; counties outside your selected
+          state are marked. When comparing states, enter the take-home pay you expect in each
+          destination.
+        </p>
+      </dialog>
+      <dialog id="extras-help-dialog" class="help-dialog" aria-labelledby="extras-help-title">
+        <div class="dialog-heading">
+          <h2 id="extras-help-title">Extra monthly expenses</h2>
+          <button class="dialog-close" type="button" aria-label="Close extra-expense help">×</button>
+        </div>
+        <p>
+          Add one monthly amount for expenses beyond the EPI household estimate. For example,
+          $300 per month adds $3,600 to each county's annual cost. Blank or 0 adds nothing.
+          If you use Your monthly costs, extras are added after your category replacements.
+          Count each expense only once.
+        </p>
+        <p>
+          Students should include tuition, required fees, books, course software, and other
+          recurring costs not already covered by their budget. For semester bills, add every term
+          you expect to pay for during the year, then divide by 12. Divide annual bills by 12 too.
+          Do not add an expense again if it is already in a budget category or deducted from the
+          take-home pay you entered.
+        </p>
+      </dialog>
+      <dialog id="component-help-dialog" class="help-dialog" aria-labelledby="component-help-title">
+        <div class="dialog-heading">
+          <h2 id="component-help-title">Published costs and category limits</h2>
+          <button class="dialog-close" type="button" aria-label="Close EPI cost-limit help">
+            ×
+          </button>
+        </div>
+        <p>
+          Food and child care are separate estimates, though both use EPI's assumed child ages.
+          These published costs are in 2025 dollars:
+        </p>
+        <ul>
+          <li><strong>Housing:</strong> rent and tenant-paid utilities, not homeownership.</li>
+          <li>
+            <strong>Food:</strong> low-cost groceries mostly prepared at home, adjusted for local
+            prices and the assumed household ages.
+          </li>
+          <li>
+            <strong>Transportation:</strong> estimated vehicle and transit costs under EPI's
+            working-adult assumptions; not a measure of service or walkability.
+          </li>
+          <li>
+            <strong>Child care:</strong> full-time care for age 4, school-year and summer care for
+            age 8, summer care for age 12, and none for age 16. Infant and toddler care is not
+            included.
+          </li>
+          <li>
+            <strong>Health care:</strong> marketplace insurance premiums and out-of-pocket medical
+            costs.
+          </li>
+          <li>
+            <strong>Other necessities:</strong> clothing, personal care, household supplies, phone
+            service, reading, and school supplies.
+          </li>
+        </ul>
+        <p>
+          Each box sets the highest EPI category estimate you want in your matching results.
+          It does not replace your personal spending. Blank means no limit; $0 requires a $0 EPI
+          estimate for that category. Looking up a place still shows its counties and marks any
+          limits they miss. Extra expenses are added separately.
+        </p>
+        <p>
+          <a
+            href="https://www.epi.org/publication/family-budget-calculator-documentation/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Read EPI's 2026 methods</a
+          >.
+        </p>
+      </dialog>
+      <dialog id="custom-help-dialog" class="help-dialog" aria-labelledby="custom-help-title">
+        <div class="dialog-heading">
+          <h2 id="custom-help-title">Your monthly costs</h2>
+          <button class="dialog-close" type="button" aria-label="Close household budget help">
+            ×
+          </button>
+        </div>
+        <p>
+          Replace a category only when you know your monthly out-of-pocket cost. Blank keeps the EPI
+          amount; 0 replaces it with $0. Replace at least one category, or select Published estimate. COLE
+          adjusts EPI's published renter total, with estimated taxes removed, by the difference
+          between your cost and EPI's. You can still see the original EPI figures.
+        </p>
+        <ul>
+          <li>
+            <strong>Housing:</strong> include rent plus utilities, or all monthly owner costs such
+            as mortgage, tax, insurance, utilities, and maintenance. EPI's source is renter based.
+            Include HOA and applicable mortgage/flood insurance; do not add escrowed taxes or
+            insurance twice. Down payment, closing, and moving costs are separate upfront needs, not
+            covered by this recurring monthly total.
+          </li>
+          <li>
+            <strong>Food:</strong> enter your household's food spending after any SNAP benefit. This
+            is separate from child care.
+          </li>
+          <li>
+            <strong>Transportation:</strong> include the travel and vehicle costs you will actually
+            pay, even if you do not commute.
+          </li>
+          <li><strong>Health care:</strong> include your premiums and out-of-pocket costs.</li>
+          <li>
+            <strong>Other necessities:</strong> include clothing, personal care, phone, and
+            household supplies.
+          </li>
+          <li>
+            <strong>Child care:</strong> enter your actual care cost, including $0 if no paid care
+            is needed.
+          </li>
+        </ul>
+        <p>
+          <a
+            href="https://www.consumerfinance.gov/ask-cfpb/on-a-mortgage-whats-the-difference-between-my-principal-and-interest-payment-and-my-total-monthly-payment-en-1941/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >CFPB: what a total mortgage payment includes (internet required)</a
+          >.
+        </p>
+        <p>
+          COLE uses these same costs in every county you search. It does not check whether you
+          qualify for vouchers, SNAP, or insurance, or whether benefits and housing are available.
+          Limit your search to places where you know a benefit applies. Extra expenses are added
+          separately, so count each cost only once. EPI category limits still use the original EPI
+          amounts.
+        </p>
+      </dialog>
+      <dialog
+        id="temperature-help-dialog"
+        class="help-dialog"
+        aria-labelledby="temperature-help-title"
+      >
+        <div class="dialog-heading">
+          <h2 id="temperature-help-title">Reading long-term temperatures</h2>
+          <button class="dialog-close" type="button" aria-label="Close temperature help">×</button>
+        </div>
+        <p>
+          Enter degrees Fahrenheit (°F). Fill in the limits you care about and leave the rest blank.
+          These are NOAA's monthly average temperatures for county areas from 1991 to 2020. They
+          describe past conditions, not a forecast or a guarantee for a specific address.
+        </p>
+        <p>
+          Coldest and warmest mean the lowest and highest of the twelve monthly averages, not
+          average daily low or high temperatures. COLE averages those twelve values and rounds to
+          one decimal place for the 12-month figure. A county must meet every cost and temperature
+          limit to appear in matching results. Looking up a place still shows its counties and
+          marks any missed limits or missing temperature data.
+        </p>
+      </dialog>
+      <dialog id="buffer-help-dialog" class="help-dialog" aria-labelledby="buffer-help-title">
+        <div class="dialog-heading">
+          <h2 id="buffer-help-title">Widen the cost search</h2>
+          <button class="dialog-close" type="button" aria-label="Close buffer help">×</button>
+        </div>
+        <p>
+          Buffers change which counties appear. They never increase your take-home pay. The
+          lower-cost buffer searches below your minimum and is available only when every earner has
+          a lower take-home amount. If all lower amounts are blank, clear any existing lower-cost
+          buffer to $0. The higher-cost buffer can still include costs above your upper amount.
+        </p>
+        <p>
+          <strong>Examples:</strong> Leave the lower amount blank and enter $50,000 as the upper
+          amount to search qualifying estimates up to $50,000; a $3,000 yearly higher-cost buffer
+          extends that ceiling to $53,000. For a $40,000 to $50,000 range, a $2,000 yearly lower
+          buffer and $3,000 yearly higher buffer search estimated costs from $38,000 to $53,000.
+        </p>
+      </dialog>
+      <dialog id="estimate-help-dialog" class="help-dialog" aria-labelledby="estimate-help-title">
+        <div class="dialog-heading">
+          <h2 id="estimate-help-title" tabindex="-1">How EPI builds the estimate</h2>
+          <button
+            class="dialog-close"
+            type="button"
+            aria-label="Close how epi builds the estimate help"
+          >
+            ×
+          </button>
+        </div>
+
+        <p>
+          EPI estimates a modest but adequate renter budget for each county and supported household
+          type. It covers essentials. Your actual spending may differ, and the estimate does not
+          tell you whether a particular home is available.
+        </p>
+        <ul>
+          <li><strong>Housing:</strong> HUD fair-market rent and tenant-paid utilities.</li>
+          <li><strong>Food:</strong> USDA low-cost groceries, adjusted for local food prices.</li>
+          <li>
+            <strong>Transportation:</strong> modeled car ownership, car use, and transit costs for
+            working adults.
+          </li>
+          <li>
+            <strong>Child care:</strong> child-care price data with EPI's assumed child ages and
+            care schedules.
+          </li>
+          <li>
+            <strong>Health care:</strong> marketplace insurance premiums and out-of-pocket costs.
+          </li>
+          <li>
+            <strong>Other necessities:</strong> an allowance based on household spending data.
+          </li>
+        </ul>
+        <p>
+          EPI also estimates taxes. COLE removes that amount from EPI's published total before
+          comparing the remaining costs with your after-tax pay. EPI provides 10 family types and no
+          3-adult estimate.
+          <a
+            href="https://www.epi.org/publication/family-budget-calculator-documentation/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Read EPI's 2026 methods</a
+          >.
+        </p>
+      </dialog>
+      <dialog id="reserve-help-dialog" class="help-dialog" aria-labelledby="reserve-help-title">
+        <div class="dialog-heading">
+          <h2 id="reserve-help-title" tabindex="-1">Your reserve goal</h2>
+          <button class="dialog-close" type="button" aria-label="Close your reserve goal help">
+            ×
+          </button>
+        </div>
+        <p>
+          Choose the percentage of take-home you want to keep after estimated costs and your extra
+          expenses. A 20% goal on $90,000 keeps $18,000 and leaves up to $72,000 for costs.
+        </p>
+        <p>
+          If you enter an income range, COLE checks the goal against your lower take-home amount.
+          Cheaper counties can still match. Widened cost searching stays off until you clear the
+          goal. You won't need to enter their amounts again.
+        </p>
+        <p class="hint">
+          CFPB describes a flexible 50/30/20 budgeting guideline, including 20% for savings goals.
+          COLE checks how much is left after costs against the percentage you choose. It does not
+          check the full guideline or guarantee a comfortable budget. Count savings only once if
+          they're already deducted from your paycheck or included in extras.
+          <a
+            href="https://www.consumerfinance.gov/documents/8392/cfpb_building_block_activities_analyzing-budgets_guide.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Read CFPB guidance (internet required)</a
+          >.
+        </p>
+      </dialog>
+      <dialog id="housing-help-dialog" class="help-dialog" aria-labelledby="housing-help-title">
+        <div class="dialog-heading">
+          <h2 id="housing-help-title" tabindex="-1">What belongs in housing?</h2>
+          <button
+            class="dialog-close"
+            type="button"
+            aria-label="Close what belongs in housing? help"
+          >
+            ×
+          </button>
+        </div>
+        <p>
+          If you rent, include rent and the utilities you pay. If you own, include mortgage
+          principal and interest, property taxes, homeowners insurance, any flood or mortgage
+          insurance, HOA fees, utilities, and money for maintenance. Count taxes and insurance only
+          once if your mortgage payment already includes them through escrow. A paid-off home still
+          has other costs. Phone and internet may already be in Other necessities.
+        </p>
+        <p>
+          Your monthly total replaces EPI's renter housing estimate in every county you search. Run
+          a separate search to try another property's costs. Down payment, closing costs, and moving
+          expenses are separate upfront needs. Leave the field blank to keep EPI.
+        </p>
+      </dialog>
+      <dialog id="preview-help-dialog" class="help-dialog" aria-labelledby="preview-help-title">
+        <div class="dialog-heading">
+          <h2 id="preview-help-title" tabindex="-1">About the live preview</h2>
+          <button class="dialog-close" type="button" aria-label="Close about the live preview help">
+            ×
+          </button>
+        </div>
+        <p>
+          The count checks your current entries, including optional filters. It updates after you
+          pause typing.
+        </p>
+        <p>
+          Select <strong>Find counties</strong> to apply your entries to the map, details, and
+          comparisons. Until you do, those
+          results use your last submitted criteria. You can still submit a search with zero matches,
+          then inspect a county to see which criteria it misses.
+        </p>
+      </dialog>
+      <dialog id="map-help-dialog" class="help-dialog" aria-labelledby="map-help-title">
+        <div class="dialog-heading">
+          <h2 id="map-help-title" tabindex="-1">Reading the county map</h2>
+          <button class="dialog-close" type="button" aria-label="Close reading the county map help">
+            ×
+          </button>
+        </div>
+        <p>
+          In “Look up a place,” red marks a county that falls outside any submitted criterion,
+          including optional feature limits, or lacks data for an active filter. “Find counties” leaves those counties gray because they are outside
+          the results. Select any county to see its details and which criteria it misses.
+        </p>
+        <p>
+          <strong>Green:</strong> meets the submitted take-home criteria and other filters.
+          <strong>Amber:</strong> included through a cost-range buffer; the buffer does not provide
+          extra income. <strong>Blue:</strong> costs-only lookup.
+        </p>
+        <p>
+          The outline shows which county you are inspecting. Use Add to comparison to compare it
+          with other counties. You can also select a county from the list or inspection search with
+          a keyboard.
+        </p>
+        <p>
+          Colors reflect your submitted search. Gray identifies counties outside the submitted
+          results. Their details show available estimates, checks against your submitted criteria,
+          and any data that is unavailable.
+        </p>
+      </dialog>
+      <dialog id="balances-help-dialog" class="help-dialog" aria-labelledby="balances-help-title">
+        <div class="dialog-heading">
+          <h2 id="balances-help-title" tabindex="-1">Reading your budget results</h2>
+          <button
+            class="dialog-close"
+            type="button"
+            aria-label="Close reading your budget results help"
+          >
+            ×
+          </button>
+        </div>
+        <p>
+          <strong>Remaining</strong> is take-home pay minus the selected cost estimate and extras. A
+          <strong>shortfall</strong> means those costs exceed that income. Monthly figures are
+          annual totals divided by 12.
+        </p>
+        <p>
+          If you set a reserve goal, the amount remaining still includes the money you want to keep.
+          The goal line compares that remainder with your target and shows how far above or below it
+          you are. Don't subtract that difference from the remaining amount again.
+        </p>
+        <p>
+          EPI does not include savings. Having a little money left may still leave you short on
+          emergencies, debt payments, or personal goals. Account for those needs, and count savings
+          only once if they're already deducted from pay or entered in extras.
+        </p>
+        <p>
+          Without a reserve goal, a county can match your income range and still cost more than your
+          lower income. Costs-only lookups do not calculate remaining money.
+        </p>
+      </dialog>
+      <dialog
+        id="comparison-help-dialog"
+        class="help-dialog"
+        aria-labelledby="comparison-help-title"
+      >
+        <div class="dialog-heading">
+          <h2 id="comparison-help-title" tabindex="-1">Comparing counties</h2>
+          <button class="dialog-close" type="button" aria-label="Close comparing counties help">
+            ×
+          </button>
+        </div>
+        <p>
+          Inspect a county, then choose Add to comparison. You can keep up to three. Selecting or
+          hovering over a county on the map does not add it automatically.
+        </p>
+        <p>
+          Each new search updates all your comparisons using the same household and budget. A county
+          stays in your comparison even if it falls outside the new results. Its labels show which
+          criteria it misses.
+        </p>
+        <p>
+          Remove a county to make room for another. Expand each card’s published costs or temperature
+          profile for the details.
+        </p>
+      </dialog>
+    </main>
+    <footer class="license-footer" aria-label="License and ownership">
+      <p><strong>Free to use.</strong> Application creator and developer: Brandon Santor.
+        © 2026 Brandon Santor for his original COLE work. All rights reserved except as granted in the license.</p>
+      <p>Download COLE only from Brandon or his official source. Private installation and backup copies
+        are allowed. Do not forward, share, rehost or mirror COLE files; share the official link instead.
+        Modification and redistribution require permission, subject to the full license.</p>
+      <p><a href="{{ url_for('license_notice') }}" target="_blank" rel="noopener">Full COLE license (new tab)</a>
+        · <a href="{{ url_for('third_party_notices') }}" target="_blank" rel="noopener">Data and third-party terms (new tab)</a>.
+        Bundled data and dependencies retain their separate terms. Feature add-on credits appear in the app.</p>
+    </footer>
+    <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
+
+    <!--
+  A screen-reader-only live region. app.js writes into it with say(), and
+  the reader announces the text without moving focus. Every important change -
+  results arriving, a page turning, an error appearing - passes through here.
+-->
+    <noscript
+      ><div class="notice error">
+        COLE requires JavaScript to display the local application.
+      </div></noscript
+    >
+
+    <!--
+  Shown only if JavaScript is switched off, so the user gets an
+  explanation rather than a blank page.
+-->
+  </body>
+</html>

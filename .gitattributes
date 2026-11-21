@@ -1,0 +1,9 @@
+# Use consistent source line endings on Windows, macOS and Linux.
+* text=auto
+*.cmd text eol=crlf
+# Runtime provenance hashes and adopted notices must survive platform checkout.
+data/prepared/* -text
+data/source/sources.json -text
+LICENSE -text
+THIRD_PARTY_NOTICES.md -text
+deploy/runtime-data.zip binary

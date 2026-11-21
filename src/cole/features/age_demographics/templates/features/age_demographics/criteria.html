@@ -1,0 +1,48 @@
+{% set age_groups = [('under_18', 'Under 18'), ('18_24', '18–24'), ('25_34', '25–34'), ('35_44', '35–44'), ('45_54', '45–54'), ('55_64', '55–64'), ('65_plus', '65 and over')] %}
+<details id="age-filter" class="criteria-option-group" aria-labelledby="age-heading">
+  <summary>
+    <span id="age-heading">Residents’ ages <span class="optional">Optional</span></span>
+    <span id="age-summary" class="criteria-group-summary">None active</span>
+  </summary>
+  <div class="criteria-option-body age-feature">
+    <button class="button secondary" type="button" data-dialog="age-info-dialog" aria-controls="age-info-dialog" aria-haspopup="dialog" aria-label="Info about the age feature">Help and credits</button>
+    <p id="age-help" class="hint">Find counties by the ages of the people who live there. Leave unused limits blank.</p>
+    
+    
+    <fieldset role="group" aria-labelledby="age-median-heading">
+      <legend id="age-median-heading">Median age (years)</legend><p class="hint">Half the residents are younger than this age; half are older.</p>
+      
+      <div class="age-bounds">
+        <label for="age-median_age-min">At least (years)<input id="age-median_age-min" type="text" inputmode="decimal" autocomplete="off" placeholder="No minimum" data-age-input="median_age.min" data-field="age_limits.median_age.min" aria-describedby="age-help" disabled></label>
+        <label for="age-median_age-max">At most (years)<input id="age-median_age-max" type="text" inputmode="decimal" autocomplete="off" placeholder="No maximum" data-age-input="median_age.max" data-field="age_limits.median_age.max" aria-describedby="age-help" disabled></label>
+      </div>
+    </fieldset>
+    
+    <p id="age-share-help" class="hint">Choose an age group below. For example, 20% means 20 of every 100 residents.</p><div class="age-add-controls">
+      <label for="age-group-select">Age group<select id="age-group-select" data-age-control aria-describedby="age-share-help" disabled>
+        <option value="">Choose an age group</option>
+        {% for key, label in age_groups %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+      </select></label>
+      <button id="age-add-group" class="button secondary" type="button" data-age-control disabled>Add age-group limit</button>
+    </div>
+    <div class="age-group-inputs">
+      {% for key, label in age_groups %}
+      <fieldset id="age-group-{{ key }}" data-age-group="{{ key }}" role="group" aria-labelledby="age-group-heading-{{ key }}" hidden>
+        <legend id="age-group-heading-{{ key }}">Age group: {{ label }} (%)</legend>
+        <div class="age-bounds">
+          <label for="age-pct_{{ key }}-min">At least (%)<input id="age-pct_{{ key }}-min" type="text" inputmode="decimal" autocomplete="off" placeholder="No minimum" data-age-input="pct_{{ key }}.min" data-field="age_limits.pct_{{ key }}.min" aria-describedby="age-help age-share-help" disabled></label>
+          <label for="age-pct_{{ key }}-max">At most (%)<input id="age-pct_{{ key }}-max" type="text" inputmode="decimal" autocomplete="off" placeholder="No maximum" data-age-input="pct_{{ key }}.max" data-field="age_limits.pct_{{ key }}.max" aria-describedby="age-help age-share-help" disabled></label>
+        </div>
+        <button class="button secondary age-remove" type="button" data-age-remove="{{ key }}" data-age-control aria-label="Remove limits for residents aged {{ label|lower }}" disabled>Remove this age group</button>
+      </fieldset>
+      {% endfor %}
+    </div>
+    
+    
+<details class="filter-details"><summary>Details and methods</summary>
+<p class="hint"><strong>U.S. Census ACS 2020–2024 five-year estimates.</strong> Explore the age distribution of all county residents. These figures describe a five-year period.</p><p class="hint">Enter a minimum, a maximum, or both. Leave a field blank for no limit; entering 0 sets a zero limit. Matching counties must meet every age limit you enter. Values exactly on a limit are included. Median age is measured in years; age-group percentages range from 0 to 100.</p><p class="hint">The age dividing residents into two equal halves. County details show its published 90% margin of error in years.</p><p class="hint">Choose age groups and set limits on their percentage of county residents. Each percentage is calculated from the group's population and the total county population. Filters use the unrounded ratio; details show one decimal place. Margins of error have not been calculated for these percentages.</p><p class="hint">Counties missing data for an age measure you selected are excluded from matching results. Looking up a place still shows its counties and marks missing values. The eight older Connecticut county boundaries used by COLE have no matching record in this ACS release.</p>
+<p id="age-coverage" class="hint"></p>
+</details>
+<p id="age-status" class="hint" data-feature-status="age_demographics" role="status">Loading age data…</p>
+  </div>
+</details>

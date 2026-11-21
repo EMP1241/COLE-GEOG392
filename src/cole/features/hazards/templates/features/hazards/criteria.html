@@ -1,0 +1,55 @@
+<details id="hazard-filter" class="criteria-option-group" aria-labelledby="hazard-filter-heading">
+  <summary>
+    <span id="hazard-filter-heading"
+      >Natural hazards <span class="optional">Optional</span></span
+    ><span id="hazard-group-summary" class="criteria-group-summary">None active</span>
+  </summary>
+  <div class="criteria-option-body">
+    <button
+      class="button secondary"
+      type="button"
+      data-dialog="hazard-info-dialog"
+      aria-controls="hazard-info-dialog"
+      aria-haspopup="dialog"
+      aria-label="Info about the natural-hazard feature"
+    >Help and credits</button>
+    <p id="hazard-filter-help" class="hint">Choose the highest level you will accept for storms, fires and other hazards. Lower levels mean lower estimated losses compared with other counties.</p>
+    <p class="hint">These levels do not tell you the chance of a disaster. Most limits compare building damage; heat waves compare harm to people.</p>
+    <p id="hazard-feature-status" class="hint" role="status" data-feature-status="hazards">Loading optional hazard data…</p>
+    <div id="hazard-controls" class="hazard-filter-grid"></div>
+    <details class="filter-details">
+      <summary>Details and methods</summary><p class="hint">
+      <strong>FEMA National Risk Index, December 2025.</strong> COLE's classes rank modeled annual
+      loss rates among covered counties with positive modeled loss for each hazard and measure.
+      They are not the chance of a disaster or FEMA's community risk ratings.
+    </p><p class="hint">
+      Choose the highest modeled loss-rate class you will accept. Most limits use expected building
+      loss as a share of building value; heat wave uses modeled deaths and weighted injuries per
+      resident. Blank limits leave the search unchanged.
+    </p>
+      <p>
+        These are COLE-derived ranks of FEMA modeled annual loss rates, compared with covered
+        counties having positive modeled loss for that hazard and measure. They are not disaster
+        probabilities or FEMA's community risk ratings. Each hazard has a different comparison set.
+      </p>
+      <p>
+        Classes use the displayed percentile: Very Low below 20; Low from 20 to below 40; Moderate
+        from 40 to below 60; High from 60 to below 80; Very High from 80 through 100.
+      </p>
+      <p>
+        Counties with missing or insufficient data for a selected hazard are excluded from matching
+        results. Looking up a place still shows those counties and marks the missing data.
+        “Not applicable” and “No modeled loss” are modeled
+        statuses in this FEMA release and pass limits; they do not establish personal safety.
+      </p>
+      <p>
+        County averages cannot describe every address. These estimates are not forecasts or
+        insurance ratings.
+      </p>
+      <p class="hint hazard-credit">
+      Natural-hazard add-on contributed by Bingqian Chen. FEMA National Risk Index, December 2025.
+    </p><p id="hazard-coverage" class="hint"></p>
+    </details>
+    
+  </div>
+</details>

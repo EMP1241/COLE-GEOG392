@@ -1,0 +1,813 @@
+{
+  "schema_version": "0.1-draft",
+  "created": "2026-09-13",
+  "status": "review_pending",
+  "provenance": "Explicitly synthetic arithmetic cases based on the agreed COLE formula. No county values or geographic identifiers are asserted. Numeric expectations are supplied independently of the unbuilt production engine. Proposed validation defaults await review.",
+  "scenario_presets": {
+    "standard": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "financial",
+      "earners": [
+        {
+          "minimum": "60000",
+          "maximum": "80000",
+          "period": "annual",
+          "schedule": null
+        }
+      ],
+      "extras_monthly": "1000",
+      "buffers": {
+        "lower": {
+          "amount": "3000",
+          "period": "annual",
+          "schedule": null
+        },
+        "upper": {
+          "amount": "3000",
+          "period": "annual",
+          "schedule": null
+        }
+      },
+      "state_filter": null
+    },
+    "exact": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "financial",
+      "earners": [
+        {
+          "minimum": "70000",
+          "maximum": "70000",
+          "period": "annual",
+          "schedule": null
+        }
+      ],
+      "extras_monthly": "1000",
+      "buffers": {
+        "lower": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        },
+        "upper": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        }
+      },
+      "state_filter": null
+    },
+    "no_lower_buffer": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "financial",
+      "earners": [
+        {
+          "minimum": "60000",
+          "maximum": "80000",
+          "period": "annual",
+          "schedule": null
+        }
+      ],
+      "extras_monthly": "1000",
+      "buffers": {
+        "lower": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        },
+        "upper": {
+          "amount": "3000",
+          "period": "annual",
+          "schedule": null
+        }
+      },
+      "state_filter": null
+    },
+    "no_upper_buffer": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "financial",
+      "earners": [
+        {
+          "minimum": "60000",
+          "maximum": "80000",
+          "period": "annual",
+          "schedule": null
+        }
+      ],
+      "extras_monthly": "1000",
+      "buffers": {
+        "lower": {
+          "amount": "3000",
+          "period": "annual",
+          "schedule": null
+        },
+        "upper": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        }
+      },
+      "state_filter": null
+    },
+    "costs_only": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "costs_only",
+      "earners": null,
+      "extras_monthly": "1000",
+      "buffers": null,
+      "state_filter": null
+    },
+    "mixed_periods": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "financial",
+      "earners": [
+        {
+          "minimum": "25",
+          "maximum": "30",
+          "period": "hourly",
+          "schedule": {
+            "hours_per_week": "40",
+            "paid_weeks_per_year": "50"
+          }
+        },
+        {
+          "minimum": "1000",
+          "maximum": "1500",
+          "period": "monthly",
+          "schedule": null
+        }
+      ],
+      "extras_monthly": "1000",
+      "buffers": {
+        "lower": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        },
+        "upper": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        }
+      },
+      "state_filter": null
+    },
+    "hourly_lower_buffer": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "financial",
+      "earners": [
+        {
+          "minimum": "60000",
+          "maximum": "80000",
+          "period": "annual",
+          "schedule": null
+        }
+      ],
+      "extras_monthly": "1000",
+      "buffers": {
+        "lower": {
+          "amount": "1.50",
+          "period": "hourly",
+          "schedule": {
+            "hours_per_week": "40",
+            "paid_weeks_per_year": "50"
+          }
+        },
+        "upper": {
+          "amount": "3000",
+          "period": "annual",
+          "schedule": null
+        }
+      },
+      "state_filter": null
+    },
+    "zero_income": {
+      "household": {
+        "adults": 1,
+        "children": 0
+      },
+      "income_context": "financial",
+      "earners": [
+        {
+          "minimum": "0",
+          "maximum": "0",
+          "period": "annual",
+          "schedule": null
+        }
+      ],
+      "extras_monthly": "0",
+      "buffers": {
+        "lower": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        },
+        "upper": {
+          "amount": "0",
+          "period": "annual",
+          "schedule": null
+        }
+      },
+      "state_filter": null
+    }
+  },
+  "cases": [
+    {
+      "case_id": "C01",
+      "kind": "calculation",
+      "description": "One cent below the expanded lower boundary",
+      "scenario_ref": "standard",
+      "baseline_annual": "44999.99",
+      "expected": {
+        "combined_cost_annual": "56999.99",
+        "financial_status": "outside_range",
+        "financial_match": false,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "3000.01"
+          },
+          {
+            "income": "80000",
+            "balance": "23000.01"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C02",
+      "kind": "calculation",
+      "description": "Exactly on the expanded lower boundary",
+      "scenario_ref": "standard",
+      "baseline_annual": "45000",
+      "expected": {
+        "combined_cost_annual": "57000",
+        "financial_status": "below_buffer",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "3000"
+          },
+          {
+            "income": "80000",
+            "balance": "23000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C03",
+      "kind": "calculation",
+      "description": "Exactly on the original lower boundary",
+      "scenario_ref": "standard",
+      "baseline_annual": "48000",
+      "expected": {
+        "combined_cost_annual": "60000",
+        "financial_status": "within_range",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "0"
+          },
+          {
+            "income": "80000",
+            "balance": "20000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C04",
+      "kind": "calculation",
+      "description": "Within the range but a shortfall at its lower income",
+      "scenario_ref": "standard",
+      "baseline_annual": "58000",
+      "expected": {
+        "combined_cost_annual": "70000",
+        "financial_status": "within_range",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "-10000"
+          },
+          {
+            "income": "80000",
+            "balance": "10000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C05",
+      "kind": "calculation",
+      "description": "Exactly on the original upper boundary",
+      "scenario_ref": "standard",
+      "baseline_annual": "68000",
+      "expected": {
+        "combined_cost_annual": "80000",
+        "financial_status": "within_range",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "-20000"
+          },
+          {
+            "income": "80000",
+            "balance": "0"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C06",
+      "kind": "calculation",
+      "description": "Exactly on the expanded upper boundary",
+      "scenario_ref": "standard",
+      "baseline_annual": "71000",
+      "expected": {
+        "combined_cost_annual": "83000",
+        "financial_status": "above_buffer",
+        "financial_match": true,
+        "amount_above_maximum_annual": "3000",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "-23000"
+          },
+          {
+            "income": "80000",
+            "balance": "-3000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C07",
+      "kind": "calculation",
+      "description": "One cent above the expanded upper boundary",
+      "scenario_ref": "standard",
+      "baseline_annual": "71000.01",
+      "expected": {
+        "combined_cost_annual": "83000.01",
+        "financial_status": "outside_range",
+        "financial_match": false,
+        "amount_above_maximum_annual": "3000.01",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "-23000.01"
+          },
+          {
+            "income": "80000",
+            "balance": "-3000.01"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C08",
+      "kind": "calculation",
+      "description": "Exact income creates one balance calculation",
+      "scenario_ref": "exact",
+      "baseline_annual": "58000",
+      "expected": {
+        "combined_cost_annual": "70000",
+        "financial_status": "within_range",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "70000",
+            "balance": "0"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C09",
+      "kind": "calculation",
+      "description": "An upper allowance does not enable a lower allowance",
+      "scenario_ref": "no_lower_buffer",
+      "baseline_annual": "45000",
+      "expected": {
+        "combined_cost_annual": "57000",
+        "financial_status": "outside_range",
+        "financial_match": false,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "3000"
+          },
+          {
+            "income": "80000",
+            "balance": "23000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C10",
+      "kind": "calculation",
+      "description": "A lower allowance does not enable an upper allowance",
+      "scenario_ref": "no_upper_buffer",
+      "baseline_annual": "71000",
+      "expected": {
+        "combined_cost_annual": "83000",
+        "financial_status": "outside_range",
+        "financial_match": false,
+        "amount_above_maximum_annual": "3000",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "-23000"
+          },
+          {
+            "income": "80000",
+            "balance": "-3000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C11",
+      "kind": "calculation",
+      "description": "Costs-only has explicit null income outcomes",
+      "scenario_ref": "costs_only",
+      "baseline_annual": "58000",
+      "expected": {
+        "combined_cost_annual": "70000",
+        "financial_status": "estimated_cost",
+        "financial_match": null,
+        "amount_above_maximum_annual": null,
+        "income_points": null
+      }
+    },
+    {
+      "case_id": "C12",
+      "kind": "calculation",
+      "description": "Hourly and monthly earners annualize independently",
+      "scenario_ref": "mixed_periods",
+      "baseline_annual": "58000",
+      "expected": {
+        "combined_cost_annual": "70000",
+        "financial_status": "within_range",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "62000",
+            "balance": "-8000"
+          },
+          {
+            "income": "78000",
+            "balance": "8000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C13",
+      "kind": "calculation",
+      "description": "Hourly lower buffer uses its own explicit schedule",
+      "scenario_ref": "hourly_lower_buffer",
+      "baseline_annual": "45000",
+      "expected": {
+        "combined_cost_annual": "57000",
+        "financial_status": "below_buffer",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "3000"
+          },
+          {
+            "income": "80000",
+            "balance": "23000"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C14",
+      "kind": "calculation",
+      "description": "Explicit zero income is different from costs-only",
+      "scenario_ref": "zero_income",
+      "baseline_annual": "0",
+      "expected": {
+        "combined_cost_annual": "0",
+        "financial_status": "within_range",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0",
+        "income_points": [
+          {
+            "income": "0",
+            "balance": "0"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "C15",
+      "kind": "calculation",
+      "description": "Classification preserves source-derived fractions before display rounding",
+      "scenario_ref": "standard",
+      "baseline_annual": "68000.004",
+      "expected": {
+        "combined_cost_annual": "80000.004",
+        "financial_status": "above_buffer",
+        "financial_match": true,
+        "amount_above_maximum_annual": "0.004",
+        "income_points": [
+          {
+            "income": "60000",
+            "balance": "-20000.004"
+          },
+          {
+            "income": "80000",
+            "balance": "-0.004"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "B01",
+      "kind": "baseline",
+      "description": "Baseline subtracts published annual taxes from published annual total",
+      "given": {
+        "published_annual_total": "70000",
+        "published_annual_taxes": "12000"
+      },
+      "expected": {
+        "baseline_annual": "58000"
+      }
+    },
+    {
+      "case_id": "V01",
+      "kind": "validation",
+      "description": "Lower amount cannot exceed upper amount",
+      "scenario": {
+        "household": {
+          "adults": 1,
+          "children": 0
+        },
+        "income_context": "financial",
+        "earners": [
+          {
+            "minimum": "90000",
+            "maximum": "80000",
+            "period": "annual",
+            "schedule": null
+          }
+        ],
+        "extras_monthly": "1000",
+        "buffers": {
+          "lower": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          },
+          "upper": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          }
+        },
+        "state_filter": null
+      },
+      "expected": {
+        "field": "earners[0]",
+        "error_code": "lower_exceeds_upper",
+        "numeric_result": null
+      }
+    },
+    {
+      "case_id": "V02",
+      "kind": "validation",
+      "description": "A required blank endpoint is not zero",
+      "scenario": {
+        "household": {
+          "adults": 1,
+          "children": 0
+        },
+        "income_context": "financial",
+        "earners": [
+          {
+            "minimum": "60000",
+            "maximum": "",
+            "period": "annual",
+            "schedule": null
+          }
+        ],
+        "extras_monthly": "1000",
+        "buffers": {
+          "lower": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          },
+          "upper": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          }
+        },
+        "state_filter": null
+      },
+      "expected": {
+        "field": "earners[0].maximum",
+        "error_code": "required_income",
+        "numeric_result": null
+      }
+    },
+    {
+      "case_id": "V03",
+      "kind": "validation",
+      "description": "Positive hourly earner requires explicit schedule",
+      "scenario": {
+        "household": {
+          "adults": 1,
+          "children": 0
+        },
+        "income_context": "financial",
+        "earners": [
+          {
+            "minimum": "25",
+            "maximum": "30",
+            "period": "hourly",
+            "schedule": null
+          }
+        ],
+        "extras_monthly": "1000",
+        "buffers": {
+          "lower": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          },
+          "upper": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          }
+        },
+        "state_filter": null
+      },
+      "expected": {
+        "field": "earners[0].schedule",
+        "error_code": "required_schedule",
+        "numeric_result": null
+      }
+    },
+    {
+      "case_id": "V04",
+      "kind": "validation",
+      "description": "Negative extras rejected",
+      "scenario": {
+        "household": {
+          "adults": 1,
+          "children": 0
+        },
+        "income_context": "financial",
+        "earners": [
+          {
+            "minimum": "60000",
+            "maximum": "80000",
+            "period": "annual",
+            "schedule": null
+          }
+        ],
+        "extras_monthly": "-1",
+        "buffers": {
+          "lower": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          },
+          "upper": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          }
+        },
+        "state_filter": null
+      },
+      "expected": {
+        "field": "extras_monthly",
+        "error_code": "invalid_amount",
+        "numeric_result": null
+      }
+    },
+    {
+      "case_id": "V05",
+      "kind": "validation",
+      "description": "Unsupported household rejected without profile substitution",
+      "scenario": {
+        "household": {
+          "adults": 3,
+          "children": 0
+        },
+        "income_context": "financial",
+        "earners": [
+          {
+            "minimum": "60000",
+            "maximum": "80000",
+            "period": "annual",
+            "schedule": null
+          }
+        ],
+        "extras_monthly": "1000",
+        "buffers": {
+          "lower": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          },
+          "upper": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          }
+        },
+        "state_filter": null
+      },
+      "expected": {
+        "field": "household",
+        "error_code": "unsupported_household",
+        "numeric_result": null
+      }
+    },
+    {
+      "case_id": "V06",
+      "kind": "validation",
+      "description": "Positive hourly buffer cannot borrow an earner schedule",
+      "scenario": {
+        "household": {
+          "adults": 1,
+          "children": 0
+        },
+        "income_context": "financial",
+        "earners": [
+          {
+            "minimum": "30",
+            "maximum": "40",
+            "period": "hourly",
+            "schedule": {
+              "hours_per_week": "40",
+              "paid_weeks_per_year": "50"
+            }
+          }
+        ],
+        "extras_monthly": "1000",
+        "buffers": {
+          "lower": {
+            "amount": "1",
+            "period": "hourly",
+            "schedule": null
+          },
+          "upper": {
+            "amount": "3000",
+            "period": "annual",
+            "schedule": null
+          }
+        },
+        "state_filter": null
+      },
+      "expected": {
+        "field": "buffers.lower.schedule",
+        "error_code": "required_schedule",
+        "numeric_result": null
+      }
+    }
+  ]
+}

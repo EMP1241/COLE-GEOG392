@@ -1,0 +1,43 @@
+<details id="industry-filter" class="criteria-option-group" aria-labelledby="industry-filter-heading">
+  <summary>
+    <span id="industry-filter-heading">Major local industries <span class="optional">Optional</span></span>
+    <span id="industry-group-summary" class="criteria-group-summary">None active</span>
+  </summary>
+  <div class="criteria-option-body industry-feature">
+    <button
+      class="button secondary"
+      type="button"
+      data-dialog="industry-info-dialog"
+      aria-controls="industry-info-dialog"
+      aria-haspopup="dialog"
+      aria-label="Info about the industry employment feature"
+    >Help and credits</button>
+    <p class="hint">Find counties where your industries are among the five largest by reported jobs.</p>
+    
+    <div id="industry-selections">
+      <div class="industry-selection-row" data-industry-row>
+        <label class="industry-select-label" for="industry-sector"><span data-industry-label>Industry 1</span>
+          <select id="industry-sector" data-field="industry_sectors" data-industry-sector disabled>
+            <option value="">No industry filter</option>
+          </select>
+        </label>
+        <button type="button" class="button secondary small" data-industry-remove hidden disabled>Remove</button>
+      </div>
+    </div>
+    <button id="industry-add" type="button" class="button secondary small" disabled>Add another industry</button>
+    <label class="industry-select-label" for="industry-match-mode">Match industries
+      <select id="industry-match-mode" data-field="industry_match_mode" aria-describedby="industry-match-help" disabled>
+        <option value="all" selected>All selected</option>
+        <option value="any">Any selected</option>
+      </select>
+    </label>
+    
+    <p id="industry-match-help" class="hint">All selected: every industry must qualify. Any selected: at least one must qualify.</p><p class="hint">These are existing jobs, not current job openings.</p>
+<details class="filter-details"><summary>Details and methods</summary>
+<p class="hint"><strong>U.S. Bureau of Labor Statistics, 2025 Quarterly Census of Employment and Wages (QCEW) annual averages.</strong> Choose industries to find counties where they rank among the top five by disclosed (publicly reported) employment, including fifth-place ties. Leave all selections blank to search without an industry filter.</p><p class="hint">All selected requires every chosen industry to qualify. Any selected requires at least one. Industry choices are independent of the number of earners.</p><p class="hint">Counts combine disclosed private and government employment covered by the source program. Withheld counts remain unknown and can change actual rankings. These are annual-average filled jobs located in the county, not job openings, jobs created, or a count of county residents.</p>
+<p id="industry-coverage" class="hint"></p>
+</details>
+<p id="industry-feature-status" class="hint" role="status" data-feature-status="industry_employment">Loading optional industry data…</p>
+    
+  </div>
+</details>

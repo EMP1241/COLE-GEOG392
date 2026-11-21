@@ -1,0 +1,22 @@
+.age-feature { min-width: 0; }
+.age-feature.details-card { padding: 20px; }
+.age-feature fieldset { min-width: 0; margin: 16px 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+.age-feature legend { padding: 0 5px; font-weight: 700; }
+.age-bounds, .age-values, .age-group-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.age-bounds label, .age-add-controls label { display: grid; gap: 7px; min-width: 0; }
+.age-bounds input, .age-add-controls select { box-sizing: border-box; min-width: 0; width: 100%; min-height: 44px; padding: 10px; color: var(--ink); background: var(--input-bg, var(--card)); border: 1px solid var(--input-border, var(--border)); border-radius: 7px; font: inherit; }
+.age-bounds input:focus-visible, .age-add-controls select:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.age-bounds input[aria-invalid="true"] { border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
+.age-add-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.age-add-controls label { flex: 1 1 160px; }
+.age-add-controls .button { min-height: 44px; white-space: normal; }
+.age-remove { margin-top: 12px; }
+.age-group-inputs fieldset[hidden] { display: none; }
+.age-values article { min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+.age-values h4 { margin: 0 0 10px; font-size: 1rem; }
+.age-estimate { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.age-feature p, .age-feature h3, .age-feature .badge { overflow-wrap: anywhere; white-space: normal; }
+.age-feature summary { min-height: 44px; padding: 10px 0; }
+.comparison-item .age-values { grid-template-columns: 1fr; }
+@media (max-width: 650px) { .age-group-inputs { grid-template-columns: 1fr; } }
+@media (max-width: 400px) { .age-bounds, .age-values { grid-template-columns: 1fr; } }

@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "archive": {
+    "bytes": 50124076,
+    "sha256": "f8ccbb9130b7772ca47a5c9d23e1493a0a92fe56ad2c9978e7f1cbfd09a1c8c8"
+  },
+  "files": {
+    "data/prepared/climate.csv": {
+      "bytes": 436991,
+      "sha256": "2b589d46d838ddd01f095ade68813ba1aaf9ba2a2b9ea959d6612a5c6fd1da91"
+    },
+    "data/prepared/counties.geojson": {
+      "bytes": 5510309,
+      "sha256": "d3a1360dca5468dc0a74dc0e9b7bcd6434d98c70a4d7aaed63665ef24a9f64e0"
+    },
+    "data/prepared/households.csv": {
+      "bytes": 5093794,
+      "sha256": "ab1839309272d5867e84aa6b779f8ce33ac099491c6ff7a971c44241a9f21466"
+    },
+    "data/prepared/lookups.json": {
+      "bytes": 5951418,
+      "sha256": "df0bc9cc3ec5778bdc29793f6f527bf366172a38edff04441b5250c9d8f5d2d2"
+    },
+    "data/prepared/manifest.json": {
+      "bytes": 10004,
+      "sha256": "ddb036ccf80dc58ebbb3bd90367887d98d99e4e0e4f2706cbc124197ab58da4d"
+    },
+    "data/prepared/sample_climate.csv": {
+      "bytes": 754,
+      "sha256": "2e2ce255919871dd9c6ad3c93d508b91e12e8d5e005baa09acab30e5e013bb98"
+    },
+    "data/prepared/sample_counties.geojson": {
+      "bytes": 5436,
+      "sha256": "d3cae037b4aa236bb96fe6d5e99c9dcc03eb4cbaa6e9a898e051c08e042e34ae"
+    },
+    "data/prepared/sample_households.csv": {
+      "bytes": 5172,
+      "sha256": "be32658b68572edb0a4fcab0e8c2b95e82e144d41f5d12df8c3cd1f4ecfad168"
+    },
+    "data/prepared/sample_lookups.json": {
+      "bytes": 5409,
+      "sha256": "cd1a69946ccee1f29924179a97558eea627034ff15058f1fe0505f80559db74c"
+    },
+    "data/prepared/sample_manifest.json": {
+      "bytes": 1086,
+      "sha256": "5d3ee0ddb15c912c92a2fd13d04aed5dc56590be090a2929af3ce53a6dabbd89"
+    },
+    "data/prepared/states.geojson": {
+      "bytes": 1957965,
+      "sha256": "3fcd493669371267d0b4ae6c449875aabba5a68ae745218c800f8648d891699c"
+    },
+    "data/prepared/validation.json": {
+      "bytes": 1781538,
+      "sha256": "af23d320b1fc02b27906dc75e7c8160e65aae4d21fb20a856e3e493d6725e215"
+    },
+    "src/cole/features/hazards/data/hazards.csv": {
+      "bytes": 898755,
+      "sha256": "c97e369c5a77af641f80d718e7ca3f6c030291ad2aa8146864f047390d2cda6c"
+    },
+    "src/cole/features/hazards/data/hazards_report.json": {
+      "bytes": 12446,
+      "sha256": "bd998b6d6c2e8fa442c63844052cf8c235fc9da4ce0f25966f7c4926ed0f0c41"
+    },
+    "src/cole/features/hazards/data/manifest.json": {
+      "bytes": 4915,
+      "sha256": "f03a54871b0978ec0c593327127e5c284ef9b177bf942e3133b8e6f985f052fc"
+    },
+    "src/cole/features/industry_employment/data/employment.sqlite3": {
+      "bytes": 177754112,
+      "sha256": "94ebca6e7f1a6311e71c81b19df2bc53b157e7c03dd12d8ab75022ec8925eaf5"
+    },
+    "src/cole/features/industry_employment/data/manifest.json": {
+      "bytes": 3908,
+      "sha256": "81775855e624450734afd92c547ba6de9b45f6ed59c96e3e5c2ec042ba1efa34"
+    },
+    "src/cole/features/poverty_education/data/manifest.json": {
+      "bytes": 4353,
+      "sha256": "1b13557353164e625ec67580e7fe56cec12138f0f3e3b9587af8a6b002e30ba0"
+    },
+    "src/cole/features/poverty_education/data/poverty_education.sqlite3": {
+      "bytes": 655360,
+      "sha256": "328d41a8bbee2422778f2385775b78209babd765cb1cdc9e9531212acd862e37"
+    },
+    "src/cole/features/age_demographics/data/age.sqlite3": {
+      "bytes": 18305024,
+      "sha256": "574a120742446abde82ede203c2214b0fd1e4c49c59c0b2c280e7c19597aa37b"
+    },
+    "src/cole/features/age_demographics/data/manifest.json": {
+      "bytes": 2929,
+      "sha256": "5286ae021c77704625582c32d87f7c325020c06908699dab44face7b4d2ab8df"
+    },
+    "src/cole/features/greenspace/data/greenspace.sqlite3": {
+      "bytes": 1073152,
+      "sha256": "7bbf096a05cc28ef9010e0f63b693d7915c58477bfcb1bbae89cbf10ade00b2d"
+    },
+    "src/cole/features/greenspace/data/manifest.json": {
+      "bytes": 73681,
+      "sha256": "a32524d1caf60e65b224a110da0a0649b7984de6216bb2516d7ebeca86eeec0d"
+    },
+    "src/cole/features/greenspace/data/preparation-manifest.json": {
+      "bytes": 73548,
+      "sha256": "6bf13067861a2db72d4ed900352f412c52b5b6b7d86fd39884091369869c9f76"
+    }
+  }
+}
