@@ -10,7 +10,7 @@ Reviewers may inspect the source here. The COLE license permits users to install
 
 Publishing the original code or binaries elsewhere, distributing modified versions, incorporating protected COLE code into another product, sublicensing or selling it requires separate written permission from the applicable rights holder, except where the license or applicable law permits the use. For permission concerning Brandon’s original work, contact [brandon.santor@tamu.edu](mailto:brandon.santor@tamu.edu).
 
-Brandon created the application and integrated the team’s add-ons. Each contributor retains any rights they hold in their contribution. The course publication preserves the team’s individual credits. [Team credits](README.md#team-and-terms)
+Brandon Santor built COLE’s weather filter for typical county temperatures, the savings goal with its optional 20% example, and the controls for customizing monthly household costs. He adapted and integrated the five credited teammate contributions and did all other original COLE project work. Each contributor retains the rights they hold in their contribution. [Individual team credits](README.md#team-and-terms)
 
 ## Data and other software
 

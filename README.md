@@ -61,6 +61,14 @@ python scripts/plot_course_budget.py texas-budget.png
 
 ## Team and terms
 
-Brandon Santor created and developed COLE, integrated the add-ons and curated the replacement public outdoor-area data. Bingqian Chen contributed natural hazards, Khayman Petrie industry employment, Andrea Figueroa poverty and education, Mitch Zhang the age profile, and Margaret Worsham the public outdoor-area concept and initial handoff.
+**Brandon Santor** developed COLE, integrated the five teammate contributions listed below, and did all other original COLE project work. He built the county budget calculations, search, map and comparison tools. He also curated and validated the replacement public outdoor-area data.
+
+Brandon built the **Typical temperatures** weather filter using NOAA’s monthly county averages. He wrote the savings control, including the **Use 20% example** option that sets aside one fifth of take-home pay. His **Your monthly costs** controls let a household replace individual EPI estimates with its own amounts. He also added the option to include extra monthly bills.
+
+- **Bingqian Chen** contributed the FEMA-based natural-hazards analysis and its tests.
+- **Khayman Petrie** contributed the industry employment search.
+- **Andrea Figueroa** contributed the poverty and educational attainment measures.
+- **Mitch Zhang** contributed the county age profile.
+- **Margaret Worsham** contributed the public outdoor-area concept and its initial data handoff.
 
 The EPI data and COLE’s adaptation of them carry their own license. [CC BY-NC-SA 4.0](licenses/CC-BY-NC-SA-4.0.txt)

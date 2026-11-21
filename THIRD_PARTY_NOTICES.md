@@ -13,7 +13,7 @@ The COLE source in this temporary GEOG 392 repository carries Brandon Santor’s
 
 Brandon Santor authored and maintains COLE. He created the application's functionality, logic system, feature concepts and baseline Python code, and integrated the add-ons into its forms, databases, Python, JavaScript and SQLite systems. This project attribution covers his original source and presentation materials. Third-party data, libraries and assets retain the terms listed below. Contact [brandon.santor@tamu.edu](mailto:brandon.santor@tamu.edu). [Public GEOG 392 source copy](https://github.com/EMP1241/COLE-GEOG392)
 
-Across all teammate feature add-ons, **Brandon Santor** performed COLE application development, corrections, customization and integration. Named teammates retain credit for their feature add-on contributions. Otherwise unattributed original COLE work belongs to Brandon; this does not replace data-publisher or third-party credits.
+**Brandon Santor** built the weather filter using NOAA’s monthly county temperature averages. He developed the savings control with its optional 20% example, the controls for replacing individual EPI estimates with custom monthly costs, and the extra monthly expenses control. He corrected, adapted and integrated all five teammate add-ons. The five named contributors retain credit for their individual contributions. All other original COLE project work is Brandon’s. [Individual team credits](README.md#team-and-terms)
 
 COLE combines public data with user-entered scenarios. Source release dates, cost-dollar years and geography vintages remain distinct. Local files under data/prepared preserve the release manifest, original annual totals/taxes and source row locations.
 
