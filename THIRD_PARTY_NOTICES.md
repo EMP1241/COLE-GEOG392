@@ -1,8 +1,17 @@
 # COLE source and dependency notices
 
+## Notices included in the public course copy
+
+The COLE source in this temporary GEOG 392 repository carries Brandon Santor’s limited-use license. The maintained research workspace holds the original teammate handoffs mentioned below. The `_internal` paths refer to the Windows distribution. Restoring the course data archive puts the prepared manifests under `data/prepared/` and `src/cole/features/` in this checkout. [Course copyright notice](COPYRIGHT.md) · [COLE license](LICENSE)
+
+- Economic Policy Institute, *Family Budget Calculator*, © March 2026. EPI’s data and COLE’s derived household-cost table retain the Attribution-NonCommercial-ShareAlike 4.0 International license. [EPI source and terms](https://www.epi.org/resources/budget/) · [Full license text](licenses/CC-BY-NC-SA-4.0.txt)
+- Leaflet’s original BSD 2-Clause notice accompanies the bundled JavaScript, CSS and images. [Copyright and license text](src/cole/static/vendor/LICENSE)
+- The Python and dependency notices collected for the COLE 1.0.1 Windows distribution accompany this course copy for offline reference. Packages installed separately for preparation, plotting or testing carry the notices in their own distributions. [Release license files](licenses/runtime)
+- U.S. Geological Survey Gap Analysis Project. 2024. *Protected Areas Database of the United States (PAD-US) 4.1*. COLE derives its outdoor-area estimates from these polygons. [USGS data release](https://doi.org/10.5066/P96WBCHS)
+
 ## COLE project attribution
 
-COLE is authored and maintained by Brandon Santor. Brandon created the application's functionality, logic system, feature concepts and baseline Python code, and integrated the add-ons into its forms, databases, Python, JavaScript and SQLite systems. Contact: brandon.santor@tamu.edu. The source repository is https://github.com/EMP1241/cole-cost-of-living-explorer. This project attribution applies to COLE's original source and presentation materials; third-party data, libraries, and assets remain subject to their own notices below.
+Brandon Santor authored and maintains COLE. He created the application's functionality, logic system, feature concepts and baseline Python code, and integrated the add-ons into its forms, databases, Python, JavaScript and SQLite systems. This project attribution covers his original source and presentation materials. Third-party data, libraries and assets retain the terms listed below. Contact [brandon.santor@tamu.edu](mailto:brandon.santor@tamu.edu). [Public GEOG 392 source copy](https://github.com/EMP1241/COLE-GEOG392)
 
 Across all teammate feature add-ons, **Brandon Santor** performed COLE application development, corrections, customization and integration. Named teammates retain credit for their feature add-on contributions. Otherwise unattributed original COLE work belongs to Brandon; this does not replace data-publisher or third-party credits.
 

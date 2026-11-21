@@ -1,6 +1,10 @@
 # Cost Of Living Explorer
 
-COLE compares a household's take-home pay with estimated living costs for 3,143 U.S. counties and county equivalents. Choose a household, search the map and compare up to three counties. Optional filters cover temperatures, natural hazards, industry employment, poverty and education, age, and public outdoor areas. This is the GEOG 392 course copy of COLE 1.0.1.
+**Temporary GEOG 392 course repository.** Brandon Santor is sharing COLE’s copyrighted source here for course evaluation. He will remove this repository when grading is complete.
+
+© 2026 Brandon Santor for his original COLE work. All rights reserved except as licensed. The limited-use license explains when written permission is required to modify, redistribute or sell the original software. Contributor and third-party rights are documented separately. [COLE license](LICENSE) · [Copyright and permissions](COPYRIGHT.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+
+COLE 1.0.1 compares a household's take-home pay with estimated living costs for 3,143 U.S. counties and county equivalents. Choose a household, search the map and compare up to three counties. Optional filters cover temperatures, natural hazards, industry employment, poverty and education, age, and public outdoor areas.
 
 [Open the web application](https://costoflivingexplorer.onrender.com) · [Windows download](https://github.com/EMP1241/cole-downloads/releases/tag/v1.0.1)
 
@@ -59,4 +63,4 @@ python scripts/plot_course_budget.py texas-budget.png
 
 Brandon Santor created and developed COLE, integrated the add-ons and curated the replacement public outdoor-area data. Bingqian Chen contributed natural hazards, Khayman Petrie industry employment, Andrea Figueroa poverty and education, Mitch Zhang the age profile, and Margaret Worsham the public outdoor-area concept and initial handoff.
 
-This is an authorized public course copy. COLE's [limited-use license](LICENSE) and the separate data and third-party terms apply. EPI data and COLE's adaptation of those data carry [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+The EPI data and COLE’s adaptation of them carry their own license. [CC BY-NC-SA 4.0](licenses/CC-BY-NC-SA-4.0.txt)

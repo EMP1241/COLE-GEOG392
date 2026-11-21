@@ -7,7 +7,7 @@ name = "cole-app"
 dynamic = ["version"]
 description = "Offline county household-cost exploration"
 license = "LicenseRef-COLE-Limited-Use"
-license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+license-files = ["LICENSE", "COPYRIGHT.md", "THIRD_PARTY_NOTICES.md", "licenses/**/*"]
 requires-python = ">=3.11"
 dependencies = ["Flask>=3.1,<4", "waitress>=3,<4"]
 

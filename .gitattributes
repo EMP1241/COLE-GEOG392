@@ -6,4 +6,8 @@ data/prepared/* -text
 data/source/sources.json -text
 LICENSE -text
 THIRD_PARTY_NOTICES.md -text
+licenses/** -text
+# Match Leaflet's published file bytes in Windows and Unix checkouts.
+src/cole/static/vendor/leaflet.js text eol=lf
+src/cole/static/vendor/leaflet.css text eol=crlf
 deploy/runtime-data.zip binary
